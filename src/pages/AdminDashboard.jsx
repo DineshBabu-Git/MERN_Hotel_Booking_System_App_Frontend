@@ -13,6 +13,7 @@ import {
     Settings,
     Calendar,
     MessageSquare,
+    MessageCircle,
     Tag,
     Plus,
     Edit,
