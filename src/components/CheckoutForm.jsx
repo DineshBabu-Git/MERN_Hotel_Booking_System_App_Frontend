@@ -31,7 +31,7 @@ const CheckoutForm = ({ bookingData }) => {
         try {
             // 1️⃣ Create Razorpay Order
             const { data: orderData } = await axios.post(
-                "http://localhost:5000/api/payments/create-order",
+                "https://mern-hotel-booking-system-backend.onrender.com/api/payments/create-order",
                 {
                     amount: bookingData.totalPrice,
                     bookingId: bookingData.bookingId,
@@ -56,7 +56,7 @@ const CheckoutForm = ({ bookingData }) => {
                     try {
                         // 3️⃣ Verify Payment on Backend
                         const verifyResponse = await axios.post(
-                            "http://localhost:5000/api/payments/verify",
+                            "https://mern-hotel-booking-system-backend.onrender.com/api/payments/verify",
                             {
                                 razorpayPaymentId: response.razorpay_payment_id,
                                 razorpayOrderId: response.razorpay_order_id,
