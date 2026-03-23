@@ -27,7 +27,7 @@ function Home() {
                             className="h-full bg-cover bg-center flex items-center justify-center"
                             style={{
                                 backgroundImage:
-                                    "url(../assets/images/luxury_stay_homeslide.jpg)",
+                                    "url(/images/luxury_stay_homeslide.jpg)",
                             }}
                         >
                             <h1 className="text-white text-5xl font-bold bg-black/50 px-6 py-4 rounded-xl">
@@ -41,7 +41,7 @@ function Home() {
                             className="h-full bg-cover bg-center flex items-center justify-center"
                             style={{
                                 backgroundImage:
-                                    "url(../assets/images/comfort_elegance_homeslide.jpg)",
+                                    "url(/images/comfort_elegance_homeslide.jpg)",
                             }}
                         >
                             <h1 className="text-white text-5xl font-bold bg-black/50 px-6 py-4 rounded-xl">
@@ -55,7 +55,7 @@ function Home() {
                             className="h-full bg-cover bg-center flex items-center justify-center"
                             style={{
                                 backgroundImage:
-                                    "url(../assets/images/book_dream_room_homeslide.jpg)",
+                                    "url(/images/book_dream_room_homeslide.jpg)",
                             }}
                         >
                             <h1 className="text-white text-5xl font-bold bg-black/50 px-6 py-4 rounded-xl">
