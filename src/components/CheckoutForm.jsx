@@ -35,7 +35,7 @@ const CheckoutForm = ({ bookingData }) => {
                 {
                     amount: bookingData.totalPrice,
                     bookingId: bookingData.bookingId,
-                    currency: "INR"
+                    currency: "USD"
                 },
                 {
                     headers: { Authorization: `Bearer ${token}` }
@@ -47,7 +47,7 @@ const CheckoutForm = ({ bookingData }) => {
             // 2️⃣ Open Razorpay Checkout
             const options = {
                 key: import.meta.env.VITE_RAZORPAY_KEY_ID, // From .env
-                amount: orderData.amount, // In paise
+                amount: orderData.amount, // In Cents
                 currency: orderData.currency,
                 name: "Hotel Booking System",
                 description: `Booking for ${bookingData.numberOfNights} nights`,
