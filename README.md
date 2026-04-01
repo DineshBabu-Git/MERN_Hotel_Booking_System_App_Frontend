@@ -302,7 +302,7 @@ Create a `.env` file in the `backend/` directory:
 
 ```env
 # Database
-MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/hotel-booking-db
+MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/hotelbook-db
 
 # JWT Configuration
 JWT_SECRET=your_super_secret_jwt_key_here
