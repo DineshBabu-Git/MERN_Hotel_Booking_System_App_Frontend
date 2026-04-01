@@ -50,6 +50,8 @@ const AdminDashboard = () => {
     const [showBookingDetailsModal, setShowBookingDetailsModal] = useState(false);
     const [selectedBooking, setSelectedBooking] = useState(null);
     const [updatingBookingId, setUpdatingBookingId] = useState(null);
+    const [roomFormLoading, setRoomFormLoading] = useState(false);
+    const [offerFormLoading, setOfferFormLoading] = useState(false);
 
     // Form states
     const [roomForm, setRoomForm] = useState({
@@ -386,7 +388,7 @@ const AdminDashboard = () => {
                 const newPreviews = [...imagePreviews];
                 newPreviews[index] = reader.result;
                 setImagePreviews(newPreviews);
-                
+
                 const newImages = [...roomForm.images];
                 newImages[index] = reader.result;
                 setRoomForm({ ...roomForm, images: newImages });
@@ -397,6 +399,7 @@ const AdminDashboard = () => {
 
     const handleRoomSubmit = async (e) => {
         e.preventDefault();
+        setRoomFormLoading(true);
         try {
             const formData = {
                 ...roomForm,
@@ -422,11 +425,14 @@ const AdminDashboard = () => {
             closeModal();
         } catch (err) {
             alert(err.response?.data?.message || `Failed to ${modalType === "edit-room" ? "update" : "create"} room`);
+        } finally {
+            setRoomFormLoading(false);
         }
     };
 
     const handleOfferSubmit = async (e) => {
         e.preventDefault();
+        setOfferFormLoading(true);
         try {
             const formData = {
                 code: offerForm.code?.toUpperCase() || "",
@@ -451,6 +457,8 @@ const AdminDashboard = () => {
             closeModal();
         } catch (err) {
             alert(err.response?.data?.message || `Failed to ${modalType === "edit-offer" ? "update" : "create"} offer`);
+        } finally {
+            setOfferFormLoading(false);
         }
     };
 
@@ -601,9 +609,8 @@ const AdminDashboard = () => {
                                         <td className="px-4 py-4 text-sm text-gray-900">{room.roomType}</td>
                                         <td className="px-4 py-4 text-sm text-gray-900">${room.price}</td>
                                         <td className="px-4 py-4">
-                                            <span className={`px-2 py-1 text-xs rounded-full ${
-                                                room.isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
-                                            }`}>
+                                            <span className={`px-2 py-1 text-xs rounded-full ${room.isActive ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"
+                                                }`}>
                                                 {room.isActive ? "Active" : "Inactive"}
                                             </span>
                                         </td>
@@ -725,15 +732,14 @@ const AdminDashboard = () => {
                                                     <select
                                                         value={booking.bookingStatus || "pending"}
                                                         onChange={(e) => handleUpdateBookingStatus(booking._id, e.target.value)}
-                                                        className={`text-sm border rounded px-3 py-1 font-medium ${
-                                                            booking.bookingStatus === "confirmed"
+                                                        className={`text-sm border rounded px-3 py-1 font-medium ${booking.bookingStatus === "confirmed"
                                                                 ? "bg-green-50 border-green-300 text-green-700"
                                                                 : booking.bookingStatus === "cancelled"
                                                                     ? "bg-red-50 border-red-300 text-red-700"
                                                                     : booking.bookingStatus === "completed"
                                                                         ? "bg-blue-50 border-blue-300 text-blue-700"
                                                                         : "bg-yellow-50 border-yellow-300 text-yellow-700"
-                                                        }`}
+                                                            }`}
                                                         disabled={updatingBookingId === booking._id}
                                                     >
                                                         <option value="pending">Pending</option>
@@ -749,18 +755,17 @@ const AdminDashboard = () => {
                                                 </div>
                                             </td>
                                             <td className="px-4 py-4">
-                                                <span className={`text-xs px-2 py-1 rounded-full ${
-                                                    booking.paymentStatus === "paid"
+                                                <span className={`text-xs px-2 py-1 rounded-full ${booking.paymentStatus === "paid"
                                                         ? "bg-green-100 text-green-800"
                                                         : booking.paymentStatus === "refunded"
                                                             ? "bg-gray-100 text-gray-800"
                                                             : "bg-orange-100 text-orange-800"
-                                                }`}>
+                                                    }`}>
                                                     {booking.paymentStatus || "Pending"}
                                                 </span>
                                             </td>
                                             <td className="px-4 py-4">
-                                                <button 
+                                                <button
                                                     onClick={() => handleViewBookingDetails(booking)}
                                                     className="text-blue-600 hover:text-blue-800 transition"
                                                     title="View Details"
@@ -825,7 +830,7 @@ const AdminDashboard = () => {
             ) : reviews && reviews.length > 0 ? (
                 <div className="space-y-4">
                     {reviews
-                        .filter(review => 
+                        .filter(review =>
                             (review.userId?.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
                             (review.comment || "").toLowerCase().includes(searchTerm.toLowerCase())
                         )
@@ -852,7 +857,7 @@ const AdminDashboard = () => {
                                             <p className="text-sm text-gray-600 mb-2">Room: <span className="font-medium">{review.roomId.name}</span></p>
                                         )}
                                         <div className="flex gap-1 mb-2">
-                                            {[1,2,3,4,5].map((star) => (
+                                            {[1, 2, 3, 4, 5].map((star) => (
                                                 <Star
                                                     key={star}
                                                     size={14}
@@ -888,7 +893,7 @@ const AdminDashboard = () => {
                                         </button>
                                     </div>
                                 </div>
-                                
+
                                 {/* Detailed Ratings */}
                                 {(review.cleanlinessRating || review.serviceRating || review.amenitiesRating) && (
                                     <div className="grid grid-cols-3 gap-2 my-3 py-3 border-t border-b text-xs">
@@ -931,7 +936,7 @@ const AdminDashboard = () => {
                                         <p className="text-sm text-blue-800 break-words">{review.adminResponse}</p>
                                     </div>
                                 )}
-                                
+
                                 <div className="flex justify-between items-center text-xs text-gray-600 mt-3">
                                     <span>
                                         {review.isApproved ? (
@@ -991,9 +996,8 @@ const AdminDashboard = () => {
                                         <p className="text-sm text-gray-600 mb-2">{offer.description}</p>
                                         <div className="flex items-center gap-2 mb-2">
                                             <code className="bg-gray-100 px-2 py-1 rounded text-sm">{offer.code}</code>
-                                            <span className={`px-2 py-1 text-xs rounded ${
-                                                offer.discountType === "percentage" ? "bg-blue-100 text-blue-800" : "bg-green-100 text-green-800"
-                                            }`}>
+                                            <span className={`px-2 py-1 text-xs rounded ${offer.discountType === "percentage" ? "bg-blue-100 text-blue-800" : "bg-green-100 text-green-800"
+                                                }`}>
                                                 {offer.discountType === "percentage" ? `${offer.discount}%` : `$${offer.discount}`}
                                             </span>
                                         </div>
@@ -1037,500 +1041,524 @@ const AdminDashboard = () => {
                 <div className="max-w-7xl mx-auto px-4">
                     <h1 className="text-4xl font-bold mb-10">Admin Dashboard</h1>
 
-                {error && (
-                    <div className="flex gap-3 bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                        <AlertCircle className="text-red-600 flex-shrink-0" size={20} />
-                        <p className="text-red-700">{error}</p>
-                    </div>
-                )}
+                    {error && (
+                        <div className="flex gap-3 bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                            <AlertCircle className="text-red-600 flex-shrink-0" size={20} />
+                            <p className="text-red-700">{error}</p>
+                        </div>
+                    )}
 
-                {/* Tab Navigation */}
-                <div className="bg-white rounded-lg shadow mb-6">
-                    <div className="border-b border-gray-200">
-                        <nav className="flex space-x-8 px-6">
-                            <button
-                                onClick={() => handleTabChange("dashboard")}
-                                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                                    activeTab === "dashboard"
-                                        ? "border-blue-500 text-blue-600"
-                                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                                }`}
-                            >
-                                <BarChart3 className="inline mr-2" size={16} />
-                                Analytics
-                            </button>
-                            <button
-                                onClick={() => handleTabChange("rooms")}
-                                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                                    activeTab === "rooms"
-                                        ? "border-blue-500 text-blue-600"
-                                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                                }`}
-                            >
-                                <Building2 className="inline mr-2" size={16} />
-                                Rooms
-                            </button>
-                            <button
-                                onClick={() => handleTabChange("bookings")}
-                                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                                    activeTab === "bookings"
-                                        ? "border-blue-500 text-blue-600"
-                                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                                }`}
-                            >
-                                <Calendar className="inline mr-2" size={16} />
-                                Bookings
-                            </button>
-                            <button
-                                onClick={() => handleTabChange("reviews")}
-                                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                                    activeTab === "reviews"
-                                        ? "border-blue-500 text-blue-600"
-                                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                                }`}
-                            >
-                                <MessageSquare className="inline mr-2" size={16} />
-                                Reviews
-                            </button>
-                            <button
-                                onClick={() => handleTabChange("offers")}
-                                className={`py-4 px-1 border-b-2 font-medium text-sm ${
-                                    activeTab === "offers"
-                                        ? "border-blue-500 text-blue-600"
-                                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-                                }`}
-                            >
-                                <Tag className="inline mr-2" size={16} />
-                                Offers
-                            </button>
-                        </nav>
+                    {/* Tab Navigation */}
+                    <div className="bg-white rounded-lg shadow mb-6">
+                        <div className="border-b border-gray-200">
+                            <nav className="flex space-x-8 px-6">
+                                <button
+                                    onClick={() => handleTabChange("dashboard")}
+                                    className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "dashboard"
+                                            ? "border-blue-500 text-blue-600"
+                                            : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                                        }`}
+                                >
+                                    <BarChart3 className="inline mr-2" size={16} />
+                                    Analytics
+                                </button>
+                                <button
+                                    onClick={() => handleTabChange("rooms")}
+                                    className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "rooms"
+                                            ? "border-blue-500 text-blue-600"
+                                            : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                                        }`}
+                                >
+                                    <Building2 className="inline mr-2" size={16} />
+                                    Rooms
+                                </button>
+                                <button
+                                    onClick={() => handleTabChange("bookings")}
+                                    className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "bookings"
+                                            ? "border-blue-500 text-blue-600"
+                                            : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                                        }`}
+                                >
+                                    <Calendar className="inline mr-2" size={16} />
+                                    Bookings
+                                </button>
+                                <button
+                                    onClick={() => handleTabChange("reviews")}
+                                    className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "reviews"
+                                            ? "border-blue-500 text-blue-600"
+                                            : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                                        }`}
+                                >
+                                    <MessageSquare className="inline mr-2" size={16} />
+                                    Reviews
+                                </button>
+                                <button
+                                    onClick={() => handleTabChange("offers")}
+                                    className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "offers"
+                                            ? "border-blue-500 text-blue-600"
+                                            : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                                        }`}
+                                >
+                                    <Tag className="inline mr-2" size={16} />
+                                    Offers
+                                </button>
+                            </nav>
+                        </div>
                     </div>
+
+                    {/* Tab Content */}
+                    {activeTab === "dashboard" && renderDashboardContent()}
+                    {activeTab === "rooms" && renderRoomsManagement()}
+                    {activeTab === "bookings" && renderBookingsManagement()}
+                    {activeTab === "reviews" && renderReviewsManagement()}
+                    {activeTab === "offers" && renderOffersManagement()}
                 </div>
 
-                {/* Tab Content */}
-                {activeTab === "dashboard" && renderDashboardContent()}
-                {activeTab === "rooms" && renderRoomsManagement()}
-                {activeTab === "bookings" && renderBookingsManagement()}
-                {activeTab === "reviews" && renderReviewsManagement()}
-                {activeTab === "offers" && renderOffersManagement()}
-            </div>
+                {/* Modal */}
+                {showModal && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                        <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+                            <div className="flex justify-between items-center mb-6">
+                                <h2 className="text-2xl font-bold">
+                                    {modalType === "add-room" && "Add New Room"}
+                                    {modalType === "edit-room" && "Edit Room"}
+                                    {modalType === "add-offer" && "Create New Offer"}
+                                    {modalType === "edit-offer" && "Edit Offer"}
+                                </h2>
+                                <button onClick={closeModal} className="text-gray-500 hover:text-gray-700">
+                                    <XCircle size={24} />
+                                </button>
+                            </div>
 
-            {/* Modal */}
-            {showModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-2xl font-bold">
-                                {modalType === "add-room" && "Add New Room"}
-                                {modalType === "edit-room" && "Edit Room"}
-                                {modalType === "add-offer" && "Create New Offer"}
-                                {modalType === "edit-offer" && "Edit Offer"}
-                            </h2>
-                            <button onClick={closeModal} className="text-gray-500 hover:text-gray-700">
-                                <XCircle size={24} />
-                            </button>
-                        </div>
-
-                        {(modalType === "add-room" || modalType === "edit-room") && (
-                            <form onSubmit={handleRoomSubmit} className="space-y-4">
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1">Room Name</label>
-                                        <input
-                                            type="text"
-                                            value={roomForm.name}
-                                            onChange={(e) => setRoomForm({...roomForm, name: e.target.value})}
-                                            className="w-full p-2 border border-gray-300 rounded-lg"
-                                            required
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1">Room Type</label>
-                                        <select
-                                            value={roomForm.roomType}
-                                            onChange={(e) => setRoomForm({...roomForm, roomType: e.target.value})}
-                                            className="w-full p-2 border border-gray-300 rounded-lg"
-                                            required
-                                        >
-                                            <option value="">Select Type</option>
-                                            <option value="single">Single</option>
-                                            <option value="double">Double</option>
-                                            <option value="suite">Suite</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1">Price per Night</label>
-                                        <input
-                                            type="number"
-                                            value={roomForm.price}
-                                            onChange={(e) => setRoomForm({...roomForm, price: e.target.value})}
-                                            className="w-full p-2 border border-gray-300 rounded-lg"
-                                            required
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1">Total Rooms</label>
-                                        <input
-                                            type="number"
-                                            value={roomForm.totalRooms}
-                                            onChange={(e) => setRoomForm({...roomForm, totalRooms: e.target.value})}
-                                            className="w-full p-2 border border-gray-300 rounded-lg"
-                                            required
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1">Bed Type</label>
-                                        <select
-                                            value={roomForm.bedType}
-                                            onChange={(e) => setRoomForm({...roomForm, bedType: e.target.value})}
-                                            className="w-full p-2 border border-gray-300 rounded-lg"
-                                        >
-                                            <option value="">Select Bed Type</option>
-                                            <option value="single">Single</option>
-                                            <option value="double">Double</option>
-                                            <option value="queen">Queen</option>
-                                            <option value="king">King</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1">Max Guests</label>
-                                        <input
-                                            type="number"
-                                            value={roomForm.maxGuests}
-                                            onChange={(e) => setRoomForm({...roomForm, maxGuests: e.target.value})}
-                                            className="w-full p-2 border border-gray-300 rounded-lg"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium mb-1">Room View Type</label>
-                                    <select
-                                        value={roomForm.view}
-                                        onChange={(e) => setRoomForm({...roomForm, view: e.target.value})}
-                                        className="w-full p-2 border border-gray-300 rounded-lg"
-                                    >
-                                        <option value="">Select View Type</option>
-                                        <option value="ocean">Ocean View</option>
-                                        <option value="city">City View</option>
-                                        <option value="mountain">Mountain View</option>
-                                        <option value="garden">Garden View</option>
-                                        <option value="lake">Lake View</option>
-                                        <option value="street">Street View</option>
-                                        <option value="pool">Pool View</option>
-                                        <option value="balcony">Balcony View</option>
-                                    </select>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium mb-1">Description</label>
-                                    <textarea
-                                        value={roomForm.description}
-                                        onChange={(e) => setRoomForm({...roomForm, description: e.target.value})}
-                                        className="w-full p-2 border border-gray-300 rounded-lg"
-                                        rows="3"
-                                    />
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium mb-2">Room Images (Upload 2 Images for Interior Views)</label>
+                            {(modalType === "add-room" || modalType === "edit-room") && (
+                                <form onSubmit={handleRoomSubmit} className="space-y-4">
                                     <div className="grid grid-cols-2 gap-4">
-                                        {[0, 1].map((index) => (
-                                            <div key={index} className="border border-gray-300 rounded-lg p-3">
-                                                <label className="block text-xs font-medium mb-2">Image {index + 1}</label>
-                                                <input
-                                                    type="file"
-                                                    accept="image/*"
-                                                    onChange={(e) => handleImageUpload(e, index)}
-                                                    className="block w-full text-sm text-gray-500
+                                        <div>
+                                            <label className="block text-sm font-medium mb-1">Room Name</label>
+                                            <input
+                                                type="text"
+                                                value={roomForm.name}
+                                                onChange={(e) => setRoomForm({ ...roomForm, name: e.target.value })}
+                                                className="w-full p-2 border border-gray-300 rounded-lg"
+                                                required
+                                                disabled={roomFormLoading}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium mb-1">Room Type</label>
+                                            <select
+                                                value={roomForm.roomType}
+                                                onChange={(e) => setRoomForm({ ...roomForm, roomType: e.target.value })}
+                                                className="w-full p-2 border border-gray-300 rounded-lg"
+                                                required
+                                                disabled={roomFormLoading}
+                                            >
+                                                <option value="">Select Type</option>
+                                                <option value="single">Single</option>
+                                                <option value="double">Double</option>
+                                                <option value="suite">Suite</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium mb-1">Price per Night</label>
+                                            <input
+                                                type="number"
+                                                value={roomForm.price}
+                                                onChange={(e) => setRoomForm({ ...roomForm, price: e.target.value })}
+                                                className="w-full p-2 border border-gray-300 rounded-lg"
+                                                required
+                                                disabled={roomFormLoading}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium mb-1">Total Rooms</label>
+                                            <input
+                                                type="number"
+                                                value={roomForm.totalRooms}
+                                                onChange={(e) => setRoomForm({ ...roomForm, totalRooms: e.target.value })}
+                                                className="w-full p-2 border border-gray-300 rounded-lg"
+                                                required
+                                                disabled={roomFormLoading}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium mb-1">Bed Type</label>
+                                            <select
+                                                value={roomForm.bedType}
+                                                onChange={(e) => setRoomForm({ ...roomForm, bedType: e.target.value })}
+                                                className="w-full p-2 border border-gray-300 rounded-lg"
+                                                disabled={roomFormLoading}
+                                            >
+                                                <option value="">Select Bed Type</option>
+                                                <option value="single">Single</option>
+                                                <option value="double">Double</option>
+                                                <option value="queen">Queen</option>
+                                                <option value="king">King</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium mb-1">Max Guests</label>
+                                            <input
+                                                type="number"
+                                                value={roomForm.maxGuests}
+                                                onChange={(e) => setRoomForm({ ...roomForm, maxGuests: e.target.value })}
+                                                className="w-full p-2 border border-gray-300 rounded-lg"
+                                                disabled={roomFormLoading}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1">Room View Type</label>
+                                        <select
+                                            value={roomForm.view}
+                                            onChange={(e) => setRoomForm({ ...roomForm, view: e.target.value })}
+                                            className="w-full p-2 border border-gray-300 rounded-lg"
+                                            disabled={roomFormLoading}
+                                        >
+                                            <option value="">Select View Type</option>
+                                            <option value="ocean">Ocean View</option>
+                                            <option value="city">City View</option>
+                                            <option value="mountain">Mountain View</option>
+                                            <option value="garden">Garden View</option>
+                                            <option value="lake">Lake View</option>
+                                            <option value="street">Street View</option>
+                                            <option value="pool">Pool View</option>
+                                            <option value="balcony">Balcony View</option>
+                                        </select>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1">Description</label>
+                                        <textarea
+                                            value={roomForm.description}
+                                            onChange={(e) => setRoomForm({ ...roomForm, description: e.target.value })}
+                                            className="w-full p-2 border border-gray-300 rounded-lg"
+                                            rows="3"
+                                            disabled={roomFormLoading}
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium mb-2">Room Images (Upload 2 Images for Interior Views)</label>
+                                        <div className="grid grid-cols-2 gap-4">
+                                            {[0, 1].map((index) => (
+                                                <div key={index} className="border border-gray-300 rounded-lg p-3">
+                                                    <label className="block text-xs font-medium mb-2">Image {index + 1}</label>
+                                                    <input
+                                                        type="file"
+                                                        accept="image/*"
+                                                        onChange={(e) => handleImageUpload(e, index)}
+                                                        className="block w-full text-sm text-gray-500
                                                         file:mr-4 file:py-2 file:px-3
                                                         file:rounded-lg file:border-0
                                                         file:text-xs file:font-semibold
                                                         file:bg-blue-50 file:text-blue-700
                                                         hover:file:bg-blue-100"
-                                                />
-                                                {imagePreviews[index] && (
-                                                    <img 
-                                                        src={imagePreviews[index]} 
-                                                        alt={`Preview ${index + 1}`}
-                                                        className="mt-2 w-full h-32 object-cover rounded-lg border border-gray-200"
+                                                        disabled={roomFormLoading}
                                                     />
-                                                )}
-                                            </div>
-                                        ))}
+                                                    {imagePreviews[index] && (
+                                                        <img
+                                                            src={imagePreviews[index]}
+                                                            alt={`Preview ${index + 1}`}
+                                                            className="mt-2 w-full h-32 object-cover rounded-lg border border-gray-200"
+                                                        />
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
                                     </div>
-                                </div>
 
-                                <div>
-                                    <label className="block text-sm font-medium mb-1">Amenities (comma separated)</label>
-                                    <input
-                                        type="text"
-                                        value={amenitiesInput}
-                                        onChange={(e) => setAmenitiesInput(e.target.value)}
-                                        className="w-full p-2 border border-gray-300 rounded-lg"
-                                        placeholder="WiFi, Pool, Gym"
-                                    />
-                                </div>
-
-                                <div className="flex justify-end gap-4">
-                                    <button type="button" onClick={closeModal} className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
-                                        Cancel
-                                    </button>
-                                    <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                                        {modalType === "edit-room" ? "Update Room" : "Create Room"}
-                                    </button>
-                                </div>
-                            </form>
-                        )}
-
-                        {(modalType === "add-offer" || modalType === "edit-offer") && (
-                            <form onSubmit={handleOfferSubmit} className="space-y-4">
-                                <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium mb-1">Offer Code</label>
+                                        <label className="block text-sm font-medium mb-1">Amenities (comma separated)</label>
                                         <input
                                             type="text"
-                                            value={offerForm.code}
-                                            onChange={(e) => setOfferForm({...offerForm, code: e.target.value.toUpperCase()})}
+                                            value={amenitiesInput}
+                                            onChange={(e) => setAmenitiesInput(e.target.value)}
                                             className="w-full p-2 border border-gray-300 rounded-lg"
-                                            required
+                                            placeholder="WiFi, Pool, Gym"
+                                            disabled={roomFormLoading}
                                         />
                                     </div>
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1">Title</label>
-                                        <input
-                                            type="text"
-                                            value={offerForm.title}
-                                            onChange={(e) => setOfferForm({...offerForm, title: e.target.value})}
-                                            className="w-full p-2 border border-gray-300 rounded-lg"
-                                            required
-                                        />
+
+                                    <div className="flex justify-end gap-4">
+                                        <button type="button" onClick={closeModal} className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50" disabled={roomFormLoading}>
+                                            Cancel
+                                        </button>
+                                        <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed" disabled={roomFormLoading}>
+                                            {roomFormLoading ? (
+                                                <>
+                                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                                    <span>{modalType === "edit-room" ? "Updating..." : "Creating..."}</span>
+                                                </>
+                                            ) : (
+                                                <span>{modalType === "edit-room" ? "Update Room" : "Create Room"}</span>
+                                            )}
+                                        </button>
                                     </div>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium mb-1">Description</label>
-                                    <textarea
-                                        value={offerForm.description}
-                                        onChange={(e) => setOfferForm({...offerForm, description: e.target.value})}
-                                        className="w-full p-2 border border-gray-300 rounded-lg"
-                                        rows="2"
-                                    />
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1">Discount Type</label>
-                                        <select
-                                            value={offerForm.discountType}
-                                            onChange={(e) => setOfferForm({...offerForm, discountType: e.target.value})}
-                                            className="w-full p-2 border border-gray-300 rounded-lg"
-                                        >
-                                            <option value="percentage">Percentage</option>
-                                            <option value="fixed">Fixed Amount</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1">
-                                            Discount {offerForm.discountType === "percentage" ? "(%)" : "($)"}
-                                        </label>
-                                        <input
-                                            type="number"
-                                            value={offerForm.discount}
-                                            onChange={(e) => setOfferForm({...offerForm, discount: e.target.value})}
-                                            className="w-full p-2 border border-gray-300 rounded-lg"
-                                            required
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1">Valid Till</label>
-                                        <input
-                                            type="date"
-                                            value={offerForm.validTill}
-                                            onChange={(e) => setOfferForm({...offerForm, validTill: e.target.value})}
-                                            className="w-full p-2 border border-gray-300 rounded-lg"
-                                            required
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium mb-1">Usage Limit</label>
-                                        <input
-                                            type="number"
-                                            value={offerForm.usageLimit}
-                                            onChange={(e) => setOfferForm({...offerForm, usageLimit: e.target.value})}
-                                            className="w-full p-2 border border-gray-300 rounded-lg"
-                                            placeholder="0 for unlimited"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="flex justify-end gap-4">
-                                    <button type="button" onClick={closeModal} className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
-                                        Cancel
-                                    </button>
-                                    <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                                        {modalType === "edit-offer" ? "Update Offer" : "Create Offer"}
-                                    </button>
-                                </div>
-                            </form>
-                        )}
-                    </div>
-                </div>
-            )}
-
-            {/* Booking Details Modal */}
-            {showBookingDetailsModal && selectedBooking && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg p-8 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-2xl font-bold">Booking Details</h2>
-                            <button onClick={closeBookingDetailsModal} className="text-gray-500 hover:text-gray-700">
-                                <XCircle size={24} />
-                            </button>
-                        </div>
-
-                        <div className="space-y-6">
-                            {/* Booking ID */}
-                            <div className="border-b pb-4">
-                                <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Booking ID</h3>
-                                <p className="text-lg font-semibold text-gray-800">{selectedBooking._id}</p>
-                            </div>
-
-                            {/* Guest Information */}
-                            <div className="grid grid-cols-2 gap-6 border-b pb-4">
-                                <div>
-                                    <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Guest Name</h3>
-                                    <p className="text-gray-800">{selectedBooking.userId?.name || "N/A"}</p>
-                                </div>
-                                <div>
-                                    <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Guest Email</h3>
-                                    <p className="text-gray-800">{selectedBooking.userId?.email || "N/A"}</p>
-                                </div>
-                                <div>
-                                    <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Guest Phone</h3>
-                                    <p className="text-gray-800">{selectedBooking.userId?.phone || "N/A"}</p>
-                                </div>
-                            </div>
-
-                            {/* Room Information */}
-                            <div className="grid grid-cols-2 gap-6 border-b pb-4">
-                                <div>
-                                    <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Room Name</h3>
-                                    <p className="text-gray-800">{selectedBooking.roomId?.name || "N/A"}</p>
-                                </div>
-                                <div>
-                                    <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Room Type</h3>
-                                    <p className="text-gray-800">{selectedBooking.roomId?.roomType || "N/A"}</p>
-                                </div>
-                            </div>
-
-                            {/* Booking Dates */}
-                            <div className="grid grid-cols-2 gap-6 border-b pb-4">
-                                <div>
-                                    <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Check-in Date</h3>
-                                    <p className="text-gray-800">{new Date(selectedBooking.checkIn).toLocaleDateString()}</p>
-                                </div>
-                                <div>
-                                    <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Check-out Date</h3>
-                                    <p className="text-gray-800">{new Date(selectedBooking.checkOut).toLocaleDateString()}</p>
-                                </div>
-                            </div>
-
-                            {/* Number of Nights */}
-                            <div className="grid grid-cols-2 gap-6 border-b pb-4">
-                                <div>
-                                    <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Number of Nights</h3>
-                                    <p className="text-gray-800">{selectedBooking.numberOfNights || "N/A"}</p>
-                                </div>
-                                <div>
-                                    <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Number of Guests</h3>
-                                    <p className="text-gray-800">{selectedBooking.numberOfGuests || "N/A"}</p>
-                                </div>
-                            </div>
-
-                            {/* Pricing Information */}
-                            <div className="grid grid-cols-2 gap-6 border-b pb-4">
-                                <div>
-                                    <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Room Price per Night</h3>
-                                    <p className="text-gray-800">${selectedBooking.roomId?.price || "N/A"}</p>
-                                </div>
-                                <div>
-                                    <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Original Total</h3>
-                                    <p className="text-gray-800">${selectedBooking.originalPrice || selectedBooking.totalPrice || "N/A"}</p>
-                                </div>
-                                <div>
-                                    <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Promo Code</h3>
-                                    <p className="text-gray-800">{selectedBooking.discountCode || "None"}</p>
-                                </div>
-                                <div>
-                                    <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Discount Amount</h3>
-                                    <p className="text-red-600 font-semibold">-${selectedBooking.discountAmount || 0}</p>
-                                </div>
-                                <div className="col-span-2">
-                                    <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Final Total Price</h3>
-                                    <p className="text-lg font-semibold text-green-600">${selectedBooking.totalPrice || "N/A"}</p>
-                                </div>
-                            </div>
-
-                            {/* Status Information */}
-                            <div className="grid grid-cols-2 gap-6 border-b pb-4">
-                                <div>
-                                    <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Booking Status</h3>
-                                    <p className={`px-3 py-1 rounded-full text-sm font-semibold w-fit ${
-                                        selectedBooking.bookingStatus === "confirmed" ? "bg-green-100 text-green-700" :
-                                        selectedBooking.bookingStatus === "pending" ? "bg-yellow-100 text-yellow-700" :
-                                        selectedBooking.bookingStatus === "cancelled" ? "bg-red-100 text-red-700" :
-                                        selectedBooking.bookingStatus === "completed" ? "bg-blue-100 text-blue-700" :
-                                        "bg-gray-100 text-gray-700"
-                                    }`}>
-                                        {selectedBooking.bookingStatus?.charAt(0).toUpperCase() + selectedBooking.bookingStatus?.slice(1)}
-                                    </p>
-                                </div>
-                                <div>
-                                    <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Payment Status</h3>
-                                    <p className={`px-3 py-1 rounded-full text-sm font-semibold w-fit ${
-                                        selectedBooking.paymentStatus === "paid" ? "bg-green-100 text-green-700" :
-                                        selectedBooking.paymentStatus === "pending" ? "bg-yellow-100 text-yellow-700" :
-                                        selectedBooking.paymentStatus === "failed" ? "bg-red-100 text-red-700" :
-                                        "bg-gray-100 text-gray-700"
-                                    }`}>
-                                        {selectedBooking.paymentStatus?.charAt(0).toUpperCase() + selectedBooking.paymentStatus?.slice(1)}
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* Special Requests */}
-                            {selectedBooking.specialRequests && (
-                                <div className="border-b pb-4">
-                                    <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Special Requests</h3>
-                                    <p className="text-gray-800">{selectedBooking.specialRequests}</p>
-                                </div>
+                                </form>
                             )}
 
-                            {/* Close Button */}
-                            <div className="flex justify-end gap-4">
-                                <button 
-                                    onClick={closeBookingDetailsModal} 
-                                    className="px-6 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition"
-                                >
-                                    Close
+                            {(modalType === "add-offer" || modalType === "edit-offer") && (
+                                <form onSubmit={handleOfferSubmit} className="space-y-4">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium mb-1">Offer Code</label>
+                                            <input
+                                                type="text"
+                                                value={offerForm.code}
+                                                onChange={(e) => setOfferForm({ ...offerForm, code: e.target.value.toUpperCase() })}
+                                                className="w-full p-2 border border-gray-300 rounded-lg"
+                                                required
+                                                disabled={offerFormLoading}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium mb-1">Title</label>
+                                            <input
+                                                type="text"
+                                                value={offerForm.title}
+                                                onChange={(e) => setOfferForm({ ...offerForm, title: e.target.value })}
+                                                className="w-full p-2 border border-gray-300 rounded-lg"
+                                                required
+                                                disabled={offerFormLoading}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1">Description</label>
+                                        <textarea
+                                            value={offerForm.description}
+                                            onChange={(e) => setOfferForm({ ...offerForm, description: e.target.value })}
+                                            className="w-full p-2 border border-gray-300 rounded-lg"
+                                            rows="2"
+                                            disabled={offerFormLoading}
+                                        />
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium mb-1">Discount Type</label>
+                                            <select
+                                                value={offerForm.discountType}
+                                                onChange={(e) => setOfferForm({ ...offerForm, discountType: e.target.value })}
+                                                className="w-full p-2 border border-gray-300 rounded-lg"
+                                                disabled={offerFormLoading}
+                                            >
+                                                <option value="percentage">Percentage</option>
+                                                <option value="fixed">Fixed Amount</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium mb-1">
+                                                Discount {offerForm.discountType === "percentage" ? "(%)" : "($)"}
+                                            </label>
+                                            <input
+                                                type="number"
+                                                value={offerForm.discount}
+                                                onChange={(e) => setOfferForm({ ...offerForm, discount: e.target.value })}
+                                                className="w-full p-2 border border-gray-300 rounded-lg"
+                                                required
+                                                disabled={offerFormLoading}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium mb-1">Valid Till</label>
+                                            <input
+                                                type="date"
+                                                value={offerForm.validTill}
+                                                onChange={(e) => setOfferForm({ ...offerForm, validTill: e.target.value })}
+                                                className="w-full p-2 border border-gray-300 rounded-lg"
+                                                required
+                                                disabled={offerFormLoading}
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium mb-1">Usage Limit</label>
+                                            <input
+                                                type="number"
+                                                value={offerForm.usageLimit}
+                                                onChange={(e) => setOfferForm({ ...offerForm, usageLimit: e.target.value })}
+                                                className="w-full p-2 border border-gray-300 rounded-lg"
+                                                placeholder="0 for unlimited"
+                                                disabled={offerFormLoading}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="flex justify-end gap-4">
+                                        <button type="button" onClick={closeModal} className="px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50" disabled={offerFormLoading}>
+                                            Cancel
+                                        </button>
+                                        <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed" disabled={offerFormLoading}>
+                                            {offerFormLoading ? (
+                                                <>
+                                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                                    <span>{modalType === "edit-offer" ? "Updating..." : "Creating..."}</span>
+                                                </>
+                                            ) : (
+                                                <span>{modalType === "edit-offer" ? "Update Offer" : "Create Offer"}</span>
+                                            )}
+                                        </button>
+                                    </div>
+                                </form>
+                            )}
+                        </div>
+                    </div>
+                )}
+
+                {/* Booking Details Modal */}
+                {showBookingDetailsModal && selectedBooking && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                        <div className="bg-white rounded-lg p-8 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+                            <div className="flex justify-between items-center mb-6">
+                                <h2 className="text-2xl font-bold">Booking Details</h2>
+                                <button onClick={closeBookingDetailsModal} className="text-gray-500 hover:text-gray-700">
+                                    <XCircle size={24} />
                                 </button>
+                            </div>
+
+                            <div className="space-y-6">
+                                {/* Booking ID */}
+                                <div className="border-b pb-4">
+                                    <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Booking ID</h3>
+                                    <p className="text-lg font-semibold text-gray-800">{selectedBooking._id}</p>
+                                </div>
+
+                                {/* Guest Information */}
+                                <div className="grid grid-cols-2 gap-6 border-b pb-4">
+                                    <div>
+                                        <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Guest Name</h3>
+                                        <p className="text-gray-800">{selectedBooking.userId?.name || "N/A"}</p>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Guest Email</h3>
+                                        <p className="text-gray-800">{selectedBooking.userId?.email || "N/A"}</p>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Guest Phone</h3>
+                                        <p className="text-gray-800">{selectedBooking.userId?.phone || "N/A"}</p>
+                                    </div>
+                                </div>
+
+                                {/* Room Information */}
+                                <div className="grid grid-cols-2 gap-6 border-b pb-4">
+                                    <div>
+                                        <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Room Name</h3>
+                                        <p className="text-gray-800">{selectedBooking.roomId?.name || "N/A"}</p>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Room Type</h3>
+                                        <p className="text-gray-800">{selectedBooking.roomId?.roomType || "N/A"}</p>
+                                    </div>
+                                </div>
+
+                                {/* Booking Dates */}
+                                <div className="grid grid-cols-2 gap-6 border-b pb-4">
+                                    <div>
+                                        <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Check-in Date</h3>
+                                        <p className="text-gray-800">{new Date(selectedBooking.checkIn).toLocaleDateString()}</p>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Check-out Date</h3>
+                                        <p className="text-gray-800">{new Date(selectedBooking.checkOut).toLocaleDateString()}</p>
+                                    </div>
+                                </div>
+
+                                {/* Number of Nights */}
+                                <div className="grid grid-cols-2 gap-6 border-b pb-4">
+                                    <div>
+                                        <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Number of Nights</h3>
+                                        <p className="text-gray-800">{selectedBooking.numberOfNights || "N/A"}</p>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Number of Guests</h3>
+                                        <p className="text-gray-800">{selectedBooking.numberOfGuests || "N/A"}</p>
+                                    </div>
+                                </div>
+
+                                {/* Pricing Information */}
+                                <div className="grid grid-cols-2 gap-6 border-b pb-4">
+                                    <div>
+                                        <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Room Price per Night</h3>
+                                        <p className="text-gray-800">${selectedBooking.roomId?.price || "N/A"}</p>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Original Total</h3>
+                                        <p className="text-gray-800">${selectedBooking.originalPrice || selectedBooking.totalPrice || "N/A"}</p>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Promo Code</h3>
+                                        <p className="text-gray-800">{selectedBooking.discountCode || "None"}</p>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Discount Amount</h3>
+                                        <p className="text-red-600 font-semibold">-${selectedBooking.discountAmount || 0}</p>
+                                    </div>
+                                    <div className="col-span-2">
+                                        <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Final Total Price</h3>
+                                        <p className="text-lg font-semibold text-green-600">${selectedBooking.totalPrice || "N/A"}</p>
+                                    </div>
+                                </div>
+
+                                {/* Status Information */}
+                                <div className="grid grid-cols-2 gap-6 border-b pb-4">
+                                    <div>
+                                        <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Booking Status</h3>
+                                        <p className={`px-3 py-1 rounded-full text-sm font-semibold w-fit ${selectedBooking.bookingStatus === "confirmed" ? "bg-green-100 text-green-700" :
+                                                selectedBooking.bookingStatus === "pending" ? "bg-yellow-100 text-yellow-700" :
+                                                    selectedBooking.bookingStatus === "cancelled" ? "bg-red-100 text-red-700" :
+                                                        selectedBooking.bookingStatus === "completed" ? "bg-blue-100 text-blue-700" :
+                                                            "bg-gray-100 text-gray-700"
+                                            }`}>
+                                            {selectedBooking.bookingStatus?.charAt(0).toUpperCase() + selectedBooking.bookingStatus?.slice(1)}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Payment Status</h3>
+                                        <p className={`px-3 py-1 rounded-full text-sm font-semibold w-fit ${selectedBooking.paymentStatus === "paid" ? "bg-green-100 text-green-700" :
+                                                selectedBooking.paymentStatus === "pending" ? "bg-yellow-100 text-yellow-700" :
+                                                    selectedBooking.paymentStatus === "failed" ? "bg-red-100 text-red-700" :
+                                                        "bg-gray-100 text-gray-700"
+                                            }`}>
+                                            {selectedBooking.paymentStatus?.charAt(0).toUpperCase() + selectedBooking.paymentStatus?.slice(1)}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Special Requests */}
+                                {selectedBooking.specialRequests && (
+                                    <div className="border-b pb-4">
+                                        <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Special Requests</h3>
+                                        <p className="text-gray-800">{selectedBooking.specialRequests}</p>
+                                    </div>
+                                )}
+
+                                {/* Close Button */}
+                                <div className="flex justify-end gap-4">
+                                    <button
+                                        onClick={closeBookingDetailsModal}
+                                        className="px-6 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition"
+                                    >
+                                        Close
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            )}
-        </div>
-    </>
+                )}
+            </div>
+        </>
     );
 };
 
