@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import API from "../services/api";
-import { Calendar, Users, Tag, AlertCircle, CheckCircle } from "lucide-react";
+import { Calendar, Users, Tag, AlertCircle, CheckCircle, X } from "lucide-react";
 import CheckoutForm from "../components/CheckoutForm";
 
 const BookingPage = () => {
@@ -37,6 +37,12 @@ const BookingPage = () => {
         if (storedUser.phone) {
             setFormData(prev => ({ ...prev, guestPhone: storedUser.phone }));
         }
+
+        // Clear errors when component unmounts (navigate away)
+        return () => {
+            setError("");
+            setSuccessMessage("");
+        };
     }, []);
 
     const fetchRoom = async () => {
@@ -189,21 +195,39 @@ const BookingPage = () => {
                 <div className="fixed top-0 left-0 right-0 z-50 p-4 animate-in">
                     <div className="max-w-4xl mx-auto">
                         {successMessage && (
-                            <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex gap-3 shadow-lg">
-                                <CheckCircle className="text-green-600 flex-shrink-0" size={20} />
-                                <p className="text-green-600 font-medium">{successMessage}</p>
+                            <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex gap-3 justify-between items-start shadow-lg">
+                                <div className="flex gap-3">
+                                    <CheckCircle className="text-green-600 flex-shrink-0" size={20} />
+                                    <p className="text-green-600 font-medium">{successMessage}</p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setSuccessMessage("")}
+                                    className="text-green-600 hover:text-green-700 flex-shrink-0"
+                                >
+                                    <X size={18} />
+                                </button>
                             </div>
                         )}
                         {error && (
-                            <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex gap-3 shadow-lg">
-                                <AlertCircle className="text-red-600 flex-shrink-0" size={20} />
-                                <p className="text-red-600 font-medium">{error}</p>
+                            <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex gap-3 justify-between items-start shadow-lg">
+                                <div className="flex gap-3">
+                                    <AlertCircle className="text-red-600 flex-shrink-0" size={20} />
+                                    <p className="text-red-600 font-medium">{error}</p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setError("")}
+                                    className="text-red-600 hover:text-red-700 flex-shrink-0"
+                                >
+                                    <X size={18} />
+                                </button>
                             </div>
                         )}
                     </div>
                 </div>
             )}
-            
+
             <div className="max-w-4xl mx-auto px-4">
                 <h1 className="text-3xl font-bold text-gray-900 mb-8">Complete Your Booking</h1>
 

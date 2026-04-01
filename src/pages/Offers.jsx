@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import API from "../services/api";
-import { Tag, AlertCircle, Calendar, Percent, DollarSign } from "lucide-react";
+import { Tag, AlertCircle, Calendar, Percent, DollarSign, X } from "lucide-react";
 
 const Offers = () => {
     const [offers, setOffers] = useState([]);
@@ -10,6 +10,11 @@ const Offers = () => {
 
     useEffect(() => {
         fetchOffers();
+
+        // Clear errors when component unmounts (navigate away)
+        return () => {
+            setError("");
+        };
     }, []);
 
     const fetchOffers = async () => {
@@ -72,9 +77,18 @@ const Offers = () => {
                 </div>
 
                 {error && (
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-8 flex gap-3 max-w-md mx-auto">
-                        <AlertCircle className="text-red-600 flex-shrink-0" size={20} />
-                        <p className="text-red-600">{error}</p>
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-8 flex gap-3 justify-between items-start max-w-md mx-auto">
+                        <div className="flex gap-3">
+                            <AlertCircle className="text-red-600 flex-shrink-0" size={20} />
+                            <p className="text-red-600">{error}</p>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => setError("")}
+                            className="text-red-600 hover:text-red-700 flex-shrink-0"
+                        >
+                            <X size={18} />
+                        </button>
                     </div>
                 )}
 
@@ -144,11 +158,10 @@ const Offers = () => {
                                                         setCopiedCode(offer._id);
                                                         setTimeout(() => setCopiedCode(null), 2000);
                                                     }}
-                                                    className={`text-sm underline font-semibold transition ${
-                                                        copiedCode === offer._id
+                                                    className={`text-sm underline font-semibold transition ${copiedCode === offer._id
                                                             ? "text-green-600 hover:text-green-800"
                                                             : "text-blue-600 hover:text-blue-800"
-                                                    }`}
+                                                        }`}
                                                 >
                                                     {copiedCode === offer._id ? "✓ Copied" : "Copy"}
                                                 </button>

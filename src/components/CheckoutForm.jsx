@@ -1,7 +1,7 @@
 
 import axios from "axios";
 import { useState, useEffect } from "react";
-import { AlertCircle, CheckCircle } from "lucide-react";
+import { AlertCircle, CheckCircle, X } from "lucide-react";
 
 const CheckoutForm = ({ bookingData }) => {
     const [loading, setLoading] = useState(false);
@@ -120,18 +120,27 @@ const CheckoutForm = ({ bookingData }) => {
             <h2 className="text-xl font-bold mb-4">Complete Payment</h2>
 
             {message && (
-                <div className={`mb-4 p-4 rounded-lg flex gap-3 ${messageType === "success"
+                <div className={`mb-4 p-4 rounded-lg flex gap-3 justify-between items-start ${messageType === "success"
                     ? "bg-green-50 border border-green-200"
                     : "bg-red-50 border border-red-200"
                     }`}>
-                    {messageType === "success" ? (
-                        <CheckCircle className="text-green-600 flex-shrink-0" size={20} />
-                    ) : (
-                        <AlertCircle className="text-red-600 flex-shrink-0" size={20} />
-                    )}
-                    <p className={messageType === "success" ? "text-green-700" : "text-red-700"}>
-                        {message}
-                    </p>
+                    <div className="flex gap-3">
+                        {messageType === "success" ? (
+                            <CheckCircle className="text-green-600 flex-shrink-0" size={20} />
+                        ) : (
+                            <AlertCircle className="text-red-600 flex-shrink-0" size={20} />
+                        )}
+                        <p className={messageType === "success" ? "text-green-700" : "text-red-700"}>
+                            {message}
+                        </p>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => setMessage("")}
+                        className={`flex-shrink-0 ${messageType === "success" ? "text-green-600 hover:text-green-700" : "text-red-600 hover:text-red-700"}`}
+                    >
+                        <X size={18} />
+                    </button>
                 </div>
             )}
 

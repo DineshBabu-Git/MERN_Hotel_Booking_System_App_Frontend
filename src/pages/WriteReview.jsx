@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import API from "../services/api";
-import { Star, AlertCircle, CheckCircle, MessageCircle, ArrowLeft } from "lucide-react";
+import { Star, AlertCircle, CheckCircle, MessageCircle, ArrowLeft, X } from "lucide-react";
 
 const WriteReview = () => {
     const { id } = useParams(); // This is the bookingId from the URL
@@ -23,6 +23,12 @@ const WriteReview = () => {
 
     useEffect(() => {
         fetchData();
+
+        // Clear errors when component unmounts (navigate away)
+        return () => {
+            setError("");
+            setSuccess("");
+        };
     }, [id]);
 
     const fetchData = async () => {
@@ -46,8 +52,8 @@ const WriteReview = () => {
                 // Get roomId from booking and fetch room details
                 if (bookingData.roomId) {
                     try {
-                        const roomId = typeof bookingData.roomId === 'object' 
-                            ? bookingData.roomId._id 
+                        const roomId = typeof bookingData.roomId === 'object'
+                            ? bookingData.roomId._id
                             : bookingData.roomId;
                         const roomResponse = await API.get(`/rooms/${roomId}`);
                         setRoom(roomResponse.data);
@@ -102,8 +108,8 @@ const WriteReview = () => {
                 return;
             }
 
-            const roomIdToSubmit = typeof booking.roomId === 'object' 
-                ? booking.roomId._id 
+            const roomIdToSubmit = typeof booking.roomId === 'object'
+                ? booking.roomId._id
                 : booking.roomId;
 
             // Ensure bookingId is valid
@@ -154,21 +160,39 @@ const WriteReview = () => {
                 <div className="fixed top-0 left-0 right-0 z-50 p-4 animate-in">
                     <div className="max-w-2xl mx-auto">
                         {error && (
-                            <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex gap-3 shadow-lg mb-2">
-                                <AlertCircle className="text-red-600 flex-shrink-0" size={20} />
-                                <p className="text-red-800 font-medium">{error}</p>
+                            <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex gap-3 justify-between items-start shadow-lg mb-2">
+                                <div className="flex gap-3">
+                                    <AlertCircle className="text-red-600 flex-shrink-0" size={20} />
+                                    <p className="text-red-800 font-medium">{error}</p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setError("")}
+                                    className="text-red-600 hover:text-red-700 flex-shrink-0"
+                                >
+                                    <X size={18} />
+                                </button>
                             </div>
                         )}
                         {success && (
-                            <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex gap-3 shadow-lg mb-2">
-                                <CheckCircle className="text-green-600 flex-shrink-0" size={20} />
-                                <p className="text-green-800 font-medium">{success}</p>
+                            <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex gap-3 justify-between items-start shadow-lg mb-2">
+                                <div className="flex gap-3">
+                                    <CheckCircle className="text-green-600 flex-shrink-0" size={20} />
+                                    <p className="text-green-800 font-medium">{success}</p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setSuccess("")}
+                                    className="text-green-600 hover:text-green-700 flex-shrink-0"
+                                >
+                                    <X size={18} />
+                                </button>
                             </div>
                         )}
                     </div>
                 </div>
             )}
-            
+
             <div className="max-w-2xl mx-auto px-4">
                 {/* Back Button */}
                 <button

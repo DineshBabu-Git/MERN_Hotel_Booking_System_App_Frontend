@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import API from "../services/api";
-import { Mail, Lock, AlertCircle, CheckCircle } from "lucide-react";
+import { Mail, Lock, AlertCircle, CheckCircle, X } from "lucide-react";
 
 const Login = () => {
     const [formData, setFormData] = useState({ email: "", password: "" });
@@ -9,6 +9,14 @@ const Login = () => {
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
     const navigate = useNavigate();
+
+    // Clear errors when component unmounts (navigate away)
+    useEffect(() => {
+        return () => {
+            setError("");
+            setSuccess("");
+        };
+    }, []);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -39,16 +47,34 @@ const Login = () => {
                 <h2 className="text-3xl font-bold text-center text-gray-800 mb-8">Login</h2>
 
                 {error && (
-                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 flex gap-3">
-                        <AlertCircle className="text-red-600 flex-shrink-0" size={20} />
-                        <p className="text-red-600 text-sm">{error}</p>
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 flex gap-3 justify-between items-start">
+                        <div className="flex gap-3">
+                            <AlertCircle className="text-red-600 flex-shrink-0" size={20} />
+                            <p className="text-red-600 text-sm">{error}</p>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => setError("")}
+                            className="text-red-600 hover:text-red-700 flex-shrink-0"
+                        >
+                            <X size={18} />
+                        </button>
                     </div>
                 )}
 
                 {success && (
-                    <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 flex gap-3">
-                        <CheckCircle className="text-green-600 flex-shrink-0" size={20} />
-                        <p className="text-green-600 text-sm">{success}</p>
+                    <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6 flex gap-3 justify-between items-start">
+                        <div className="flex gap-3">
+                            <CheckCircle className="text-green-600 flex-shrink-0" size={20} />
+                            <p className="text-green-600 text-sm">{success}</p>
+                        </div>
+                        <button
+                            type="button"
+                            onClick={() => setSuccess("")}
+                            className="text-green-600 hover:text-green-700 flex-shrink-0"
+                        >
+                            <X size={18} />
+                        </button>
                     </div>
                 )}
 
