@@ -155,7 +155,7 @@ const Rooms = () => {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                     {/* Filters Sidebar */}
                     <div className={`${showFilters ? "block" : "hidden"} md:block md:col-span-1`}>
-                        <div className="bg-white rounded-lg shadow-lg p-6 sticky top-20">
+                        <div className="bg-white rounded-lg shadow-lg p-6 sticky top-20 max-h-[calc(100vh-120px)] overflow-y-auto">
                             <div className="flex items-center justify-between mb-6 md:hidden">
                                 <h3 className="text-lg font-bold">Filters</h3>
                                 <button
