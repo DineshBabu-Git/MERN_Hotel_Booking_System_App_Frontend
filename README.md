@@ -4,26 +4,6 @@
 
 ------------------------------------------------------------------------------
 
-## 📋 Table of Contents
-
-- [Overview](#overview)
-- [Features](#features)
-- [Tech Stack](#tech-stack)
-- [Project Structure](#project-structure)
-- [Prerequisites](#prerequisites)
-- [Installation](#installation)
-- [Environment Variables](#environment-variables)
-- [Running the Project](#running-the-project)
-- [API Documentation](#api-documentation)
-- [Database Schema](#database-schema)
-- [Key Features Deep Dive](#key-features-deep-dive)
-- [Deployment](#deployment)
-- [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
-- [License](#license)
-
-------------------------------------------------------------------------------
-
 ## 🎯 Overview
 
 The **MERN Hotel Booking System** is a production-ready hotel management and booking platform that enables:
@@ -81,7 +61,7 @@ The **MERN Hotel Booking System** is a production-ready hotel management and boo
 - **Error Handling** - User-friendly error messages and validation
 - **Toast Notifications** - Success/error alerts for user actions
 - **Sticky Navigation** - Always accessible header and filters
-- **Dark/Light Themes** - Responsive design principles
+- **Colorful Themes** - Responsive design principles
 
 ------------------------------------------------------------------------------
 
@@ -302,7 +282,7 @@ Create a `.env` file in the `backend/` directory:
 
 ```env
 # Database
-MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/hotelbook-db
+MONGO_URI=mongodb+srv://username:password@cluster.mongodb.net/database-name
 
 # JWT Configuration
 JWT_SECRET=your_super_secret_jwt_key_here
@@ -603,6 +583,7 @@ netlify deploy --prod --dir=dist
 3. Set environment variables in platform settings
 4. Deploy automatically on push
 
+
 ### Environment Variables for Production
 
 Update these for your production environment:
@@ -679,6 +660,6 @@ VITE_DEBUG=true npm run dev
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is open-source and free to use for educational and personal projects. For commercial use, please contact the author for licensing options.
 
 ------------------------------------------------------------------------------
