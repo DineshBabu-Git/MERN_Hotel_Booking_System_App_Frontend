@@ -3,7 +3,7 @@
 
 > React-based frontend for the MERN Hotel Booking System. Provides a responsive user interface for browsing rooms, making bookings, processing payments, and managing reservations.
 
----a
+---
 
 ## 🔐 Demo Credentials
 
