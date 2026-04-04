@@ -117,14 +117,6 @@ const Dashboard = () => {
         return status === "paid" ? "text-green-600" : "text-yellow-600";
     };
 
-    if (loading) {
-        return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                <p className="text-lg">Loading...</p>
-            </div>
-        );
-    }
-
     return (
         <div className="min-h-screen bg-gray-50 py-12">
             <div className="max-w-7xl mx-auto px-4">
@@ -142,47 +134,61 @@ const Dashboard = () => {
                 )}
 
                 {/* Stats Cards */}
-                <div className="grid md:grid-cols-4 gap-6 mb-10">
-                    <div className="rounded-lg shadow bg-white p-6 flex items-center gap-4 hover:shadow-lg transition">
-                        <Calendar className="text-blue-600" size={32} />
-                        <div>
-                            <p className="text-gray-500 text-sm">Total Bookings</p>
-                            <h3 className="text-2xl font-bold">{stats.totalBookings}</h3>
-                        </div>
+                {loading ? (
+                    <div className="grid md:grid-cols-4 gap-6 mb-10">
+                        {[1, 2, 3, 4].map((i) => (
+                            <div key={i} className="rounded-lg shadow bg-white p-6 flex items-center gap-4">
+                                <div className="animate-pulse">
+                                    <div className="w-8 h-8 bg-gray-300 rounded mb-2"></div>
+                                    <div className="w-16 h-4 bg-gray-300 rounded mb-1"></div>
+                                    <div className="w-12 h-6 bg-gray-300 rounded"></div>
+                                </div>
+                            </div>
+                        ))}
                     </div>
+                ) : (
+                    <div className="grid md:grid-cols-4 gap-6 mb-10">
+                        <div className="rounded-lg shadow bg-white p-6 flex items-center gap-4 hover:shadow-lg transition">
+                            <Calendar className="text-blue-600" size={32} />
+                            <div>
+                                <p className="text-gray-500 text-sm">Total Bookings</p>
+                                <h3 className="text-2xl font-bold">{stats.totalBookings}</h3>
+                            </div>
+                        </div>
 
-                    <div className="rounded-lg shadow bg-white p-6 flex items-center gap-4 hover:shadow-lg transition">
-                        <DollarSign className="text-green-600" size={32} />
-                        <div>
-                            <p className="text-gray-500 text-sm">Total Spent</p>
-                            <h3 className="text-2xl font-bold">${stats.totalSpent}</h3>
+                        <div className="rounded-lg shadow bg-white p-6 flex items-center gap-4 hover:shadow-lg transition">
+                            <DollarSign className="text-green-600" size={32} />
+                            <div>
+                                <p className="text-gray-500 text-sm">Total Spent</p>
+                                <h3 className="text-2xl font-bold">${stats.totalSpent}</h3>
+                            </div>
                         </div>
-                    </div>
 
-                    <div className="rounded-lg shadow bg-white p-6 flex items-center gap-4 hover:shadow-lg transition">
-                        <Clock className="text-yellow-600" size={32} />
-                        <div>
-                            <p className="text-gray-500 text-sm">Upcoming</p>
-                            <h3 className="text-2xl font-bold">{stats.upcomingBookings}</h3>
+                        <div className="rounded-lg shadow bg-white p-6 flex items-center gap-4 hover:shadow-lg transition">
+                            <Clock className="text-yellow-600" size={32} />
+                            <div>
+                                <p className="text-gray-500 text-sm">Upcoming</p>
+                                <h3 className="text-2xl font-bold">{stats.upcomingBookings}</h3>
+                            </div>
                         </div>
-                    </div>
 
-                    <div className="rounded-lg shadow bg-white p-6 flex items-center gap-4 hover:shadow-lg transition">
-                        <CheckCircle className="text-purple-600" size={32} />
-                        <div>
-                            <p className="text-gray-500 text-sm">Completed</p>
-                            <h3 className="text-2xl font-bold">{stats.completedBookings}</h3>
+                        <div className="rounded-lg shadow bg-white p-6 flex items-center gap-4 hover:shadow-lg transition">
+                            <CheckCircle className="text-purple-600" size={32} />
+                            <div>
+                                <p className="text-gray-500 text-sm">Completed</p>
+                                <h3 className="text-2xl font-bold">{stats.completedBookings}</h3>
+                            </div>
                         </div>
                     </div>
-                </div>
+                )}
 
                 {/* Tabs */}
                 <div className="flex gap-4 mb-6 border-b overflow-x-auto">
                     <button
                         onClick={() => setActiveTab("bookings")}
                         className={`pb-3 font-semibold transition whitespace-nowrap ${activeTab === "bookings"
-                                ? "text-blue-600 border-b-2 border-blue-600"
-                                : "text-gray-600 hover:text-gray-800"
+                            ? "text-blue-600 border-b-2 border-blue-600"
+                            : "text-gray-600 hover:text-gray-800"
                             }`}
                     >
                         My Bookings ({bookings.length})
@@ -190,8 +196,8 @@ const Dashboard = () => {
                     <button
                         onClick={() => setActiveTab("saved")}
                         className={`pb-3 font-semibold transition whitespace-nowrap ${activeTab === "saved"
-                                ? "text-blue-600 border-b-2 border-blue-600"
-                                : "text-gray-600 hover:text-gray-800"
+                            ? "text-blue-600 border-b-2 border-blue-600"
+                            : "text-gray-600 hover:text-gray-800"
                             }`}
                     >
                         Saved Rooms ({savedRooms.length})
@@ -199,8 +205,8 @@ const Dashboard = () => {
                     <button
                         onClick={() => setActiveTab("profile")}
                         className={`pb-3 font-semibold transition whitespace-nowrap flex items-center gap-1 ${activeTab === "profile"
-                                ? "text-blue-600 border-b-2 border-blue-600"
-                                : "text-gray-600 hover:text-gray-800"
+                            ? "text-blue-600 border-b-2 border-blue-600"
+                            : "text-gray-600 hover:text-gray-800"
                             }`}
                     >
                         <User size={18} />
@@ -213,7 +219,12 @@ const Dashboard = () => {
                     <div className="bg-white rounded-lg shadow p-6">
                         <h2 className="text-xl font-bold mb-6">My Bookings</h2>
 
-                        {bookings.length === 0 ? (
+                        {loading ? (
+                            <div className="text-center py-8">
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                                <p className="text-gray-600">Loading your bookings...</p>
+                            </div>
+                        ) : bookings.length === 0 ? (
                             <p className="text-gray-500 text-center py-8">No bookings yet. Start exploring rooms!</p>
                         ) : (
                             <div className="overflow-x-auto">
@@ -268,11 +279,10 @@ const Dashboard = () => {
                                                             <button
                                                                 onClick={() => handleCancelBooking(booking._id)}
                                                                 disabled={cancellingBookingId === booking._id}
-                                                                className={`p-2 rounded transition ${
-                                                                    cancellingBookingId === booking._id
+                                                                className={`p-2 rounded transition ${cancellingBookingId === booking._id
                                                                         ? "bg-gray-100 cursor-not-allowed"
                                                                         : "hover:bg-red-100"
-                                                                }`}
+                                                                    }`}
                                                                 title="Cancel Booking"
                                                             >
                                                                 {cancellingBookingId === booking._id ? (
@@ -298,7 +308,12 @@ const Dashboard = () => {
                     <div className="bg-white rounded-lg shadow p-6">
                         <h2 className="text-xl font-bold mb-6">Saved Rooms</h2>
 
-                        {savedRooms.length === 0 ? (
+                        {loading ? (
+                            <div className="text-center py-8">
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                                <p className="text-gray-600">Loading saved rooms...</p>
+                            </div>
+                        ) : savedRooms.length === 0 ? (
                             <p className="text-gray-500 text-center py-8">No saved rooms yet. Add some favorites!</p>
                         ) : (
                             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -330,138 +345,147 @@ const Dashboard = () => {
                 {/* Profile Tab */}
                 {activeTab === "profile" && (
                     <div className="bg-white rounded-lg shadow p-6">
-                        <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-xl font-bold">My Profile</h2>
-                            <button
-                                onClick={() => setIsEditingProfile(!isEditingProfile)}
-                                className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-                            >
-                                {isEditingProfile ? <Save size={18} /> : <Edit2 size={18} />}
-                                {isEditingProfile ? "Save" : "Edit Profile"}
-                            </button>
-                        </div>
-
-                        {isEditingProfile ? (
-                            <form onSubmit={handleUpdateProfile} className="space-y-4">
-                                <div className="grid md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium mb-2">Full Name</label>
-                                        <input
-                                            type="text"
-                                            value={profileForm.name}
-                                            onChange={(e) => setProfileForm({...profileForm, name: e.target.value})}
-                                            className="w-full p-2 border border-gray-300 rounded-lg"
-                                            required
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium mb-2">Phone</label>
-                                        <input
-                                            type="tel"
-                                            value={profileForm.phone}
-                                            onChange={(e) => setProfileForm({...profileForm, phone: e.target.value})}
-                                            className="w-full p-2 border border-gray-300 rounded-lg"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-medium mb-2">Address</label>
-                                    <input
-                                        type="text"
-                                        value={profileForm.address}
-                                        onChange={(e) => setProfileForm({...profileForm, address: e.target.value})}
-                                        className="w-full p-2 border border-gray-300 rounded-lg"
-                                    />
-                                </div>
-
-                                <div className="grid md:grid-cols-3 gap-4">
-                                    <div>
-                                        <label className="block text-sm font-medium mb-2">City</label>
-                                        <input
-                                            type="text"
-                                            value={profileForm.city}
-                                            onChange={(e) => setProfileForm({...profileForm, city: e.target.value})}
-                                            className="w-full p-2 border border-gray-300 rounded-lg"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium mb-2">State</label>
-                                        <input
-                                            type="text"
-                                            value={profileForm.state}
-                                            onChange={(e) => setProfileForm({...profileForm, state: e.target.value})}
-                                            className="w-full p-2 border border-gray-300 rounded-lg"
-                                        />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium mb-2">Zip Code</label>
-                                        <input
-                                            type="text"
-                                            value={profileForm.zipCode}
-                                            onChange={(e) => setProfileForm({...profileForm, zipCode: e.target.value})}
-                                            className="w-full p-2 border border-gray-300 rounded-lg"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="flex gap-4">
-                                    <button
-                                        type="submit"
-                                        className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
-                                    >
-                                        Save Changes
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => setIsEditingProfile(false)}
-                                        className="bg-gray-300 text-gray-700 px-6 py-2 rounded hover:bg-gray-400 transition"
-                                    >
-                                        Cancel
-                                    </button>
-                                </div>
-                            </form>
-                        ) : (
-                            <div className="space-y-4">
-                                <div className="grid md:grid-cols-2 gap-4">
-                                    <div>
-                                        <p className="text-gray-600 text-sm">Full Name</p>
-                                        <p className="text-lg font-medium">{user?.name}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-gray-600 text-sm">Email</p>
-                                        <p className="text-lg font-medium">{user?.email}</p>
-                                    </div>
-                                </div>
-                                <div className="grid md:grid-cols-2 gap-4">
-                                    <div>
-                                        <p className="text-gray-600 text-sm">Phone</p>
-                                        <p className="text-lg font-medium">{user?.phone || "Not provided"}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-gray-600 text-sm">Role</p>
-                                        <p className="text-lg font-medium capitalize">{user?.role}</p>
-                                    </div>
-                                </div>
-                                <div>
-                                    <p className="text-gray-600 text-sm">Address</p>
-                                    <p className="text-lg font-medium">{user?.address || "Not provided"}</p>
-                                </div>
-                                <div className="grid md:grid-cols-3 gap-4">
-                                    <div>
-                                        <p className="text-gray-600 text-sm">City</p>
-                                        <p className="text-lg font-medium">{user?.city || "Not provided"}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-gray-600 text-sm">State</p>
-                                        <p className="text-lg font-medium">{user?.state || "Not provided"}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-gray-600 text-sm">Zip Code</p>
-                                        <p className="text-lg font-medium">{user?.zipCode || "Not provided"}</p>
-                                    </div>
-                                </div>
+                        {loading ? (
+                            <div className="text-center py-8">
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                                <p className="text-gray-600">Loading profile...</p>
                             </div>
+                        ) : (
+                            <>
+                                <div className="flex justify-between items-center mb-6">
+                                    <h2 className="text-xl font-bold">My Profile</h2>
+                                    <button
+                                        onClick={() => setIsEditingProfile(!isEditingProfile)}
+                                        className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+                                    >
+                                        {isEditingProfile ? <Save size={18} /> : <Edit2 size={18} />}
+                                        {isEditingProfile ? "Save" : "Edit Profile"}
+                                    </button>
+                                </div>
+
+                                {isEditingProfile ? (
+                                    <form onSubmit={handleUpdateProfile} className="space-y-4">
+                                        <div className="grid md:grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-medium mb-2">Full Name</label>
+                                                <input
+                                                    type="text"
+                                                    value={profileForm.name}
+                                                    onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
+                                                    className="w-full p-2 border border-gray-300 rounded-lg"
+                                                    required
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium mb-2">Phone</label>
+                                                <input
+                                                    type="tel"
+                                                    value={profileForm.phone}
+                                                    onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
+                                                    className="w-full p-2 border border-gray-300 rounded-lg"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium mb-2">Address</label>
+                                            <input
+                                                type="text"
+                                                value={profileForm.address}
+                                                onChange={(e) => setProfileForm({ ...profileForm, address: e.target.value })}
+                                                className="w-full p-2 border border-gray-300 rounded-lg"
+                                            />
+                                        </div>
+
+                                        <div className="grid md:grid-cols-3 gap-4">
+                                            <div>
+                                                <label className="block text-sm font-medium mb-2">City</label>
+                                                <input
+                                                    type="text"
+                                                    value={profileForm.city}
+                                                    onChange={(e) => setProfileForm({ ...profileForm, city: e.target.value })}
+                                                    className="w-full p-2 border border-gray-300 rounded-lg"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium mb-2">State</label>
+                                                <input
+                                                    type="text"
+                                                    value={profileForm.state}
+                                                    onChange={(e) => setProfileForm({ ...profileForm, state: e.target.value })}
+                                                    className="w-full p-2 border border-gray-300 rounded-lg"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-sm font-medium mb-2">Zip Code</label>
+                                                <input
+                                                    type="text"
+                                                    value={profileForm.zipCode}
+                                                    onChange={(e) => setProfileForm({ ...profileForm, zipCode: e.target.value })}
+                                                    className="w-full p-2 border border-gray-300 rounded-lg"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="flex gap-4">
+                                            <button
+                                                type="submit"
+                                                className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
+                                            >
+                                                Save Changes
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setIsEditingProfile(false)}
+                                                className="bg-gray-300 text-gray-700 px-6 py-2 rounded hover:bg-gray-400 transition"
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </form>
+                                ) : (
+                                    <div className="space-y-4">
+                                        <div className="grid md:grid-cols-2 gap-4">
+                                            <div>
+                                                <p className="text-gray-600 text-sm">Full Name</p>
+                                                <p className="text-lg font-medium">{user?.name}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-gray-600 text-sm">Email</p>
+                                                <p className="text-lg font-medium">{user?.email}</p>
+                                            </div>
+                                        </div>
+                                        <div className="grid md:grid-cols-2 gap-4">
+                                            <div>
+                                                <p className="text-gray-600 text-sm">Phone</p>
+                                                <p className="text-lg font-medium">{user?.phone || "Not provided"}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-gray-600 text-sm">Role</p>
+                                                <p className="text-lg font-medium capitalize">{user?.role}</p>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <p className="text-gray-600 text-sm">Address</p>
+                                            <p className="text-lg font-medium">{user?.address || "Not provided"}</p>
+                                        </div>
+                                        <div className="grid md:grid-cols-3 gap-4">
+                                            <div>
+                                                <p className="text-gray-600 text-sm">City</p>
+                                                <p className="text-lg font-medium">{user?.city || "Not provided"}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-gray-600 text-sm">State</p>
+                                                <p className="text-lg font-medium">{user?.state || "Not provided"}</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-gray-600 text-sm">Zip Code</p>
+                                                <p className="text-lg font-medium">{user?.zipCode || "Not provided"}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </>
                         )}
                     </div>
                 )}
