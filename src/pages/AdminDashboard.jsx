@@ -119,38 +119,22 @@ const AdminDashboard = () => {
                 setStats(statsRes.value.data);
             }
             if (revenueRes.status === "fulfilled") {
-                // Handle both old array format and new {success, data} format
-                const revenueData = Array.isArray(revenueRes.value.data)
-                    ? revenueRes.value.data
-                    : revenueRes.value.data?.data || [];
-                setMonthlyRevenue(revenueData);
+                setMonthlyRevenue(revenueRes.value.data || []);
             }
             if (occupancyRes.status === "fulfilled") {
                 setOccupancy(occupancyRes.value.data);
             }
             if (trendsRes.status === "fulfilled") {
-                // Handle both old array format and new {success, data} format
-                const trendsData = Array.isArray(trendsRes.value.data)
-                    ? trendsRes.value.data
-                    : trendsRes.value.data?.data || [];
-                setTrends(trendsData);
+                setTrends(trendsRes.value.data || []);
             }
             if (roomRes.status === "fulfilled") {
-                // Handle both old array format and new {success, data} format
-                const roomData = Array.isArray(roomRes.value.data)
-                    ? roomRes.value.data
-                    : roomRes.value.data?.data || [];
-                setRoomPerformance(roomData);
+                setRoomPerformance(roomRes.value.data || []);
             }
             if (reviewRes.status === "fulfilled") {
                 setReviewAnalytics(reviewRes.value.data);
             }
             if (userRes.status === "fulfilled") {
-                // Handle both old array format and new {success, data} format
-                const userData = Array.isArray(userRes.value.data)
-                    ? userRes.value.data
-                    : userRes.value.data?.data || [];
-                setUserDemographics(userData);
+                setUserDemographics(userRes.value.data || []);
             }
 
             // Check if at least one call failed
@@ -481,24 +465,8 @@ const AdminDashboard = () => {
     // Render functions for different tabs
     const renderDashboardContent = () => (
         <>
-            {/* Loading State */}
-            {loading && (
-                <div className="flex flex-col items-center justify-center py-20">
-                    <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mb-4"></div>
-                    <p className="text-gray-600 text-lg">Loading dashboard analytics...</p>
-                </div>
-            )}
-
-            {/* Error State */}
-            {!loading && error && (
-                <div className="flex gap-3 bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                    <AlertCircle className="text-red-600 flex-shrink-0" size={20} />
-                    <div className="text-red-800">{error}</div>
-                </div>
-            )}
-
             {/* Top Stats Cards */}
-            {!loading && stats && (
+            {stats && (
                 <div className="grid md:grid-cols-4 gap-6 mb-10">
                     <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition">
                         <div className="flex items-center justify-between">
@@ -549,49 +517,35 @@ const AdminDashboard = () => {
                         <TrendingUp size={24} className="text-blue-600" />
                         Monthly Revenue (Last 12 Months)
                     </h2>
-                    {loading ? (
-                        <div className="h-64 flex items-center justify-center">
-                            <p className="text-gray-500">Loading revenue data...</p>
-                        </div>
-                    ) : monthlyRevenue && monthlyRevenue.length > 0 ? (
-                        <div className="h-64 overflow-x-auto">
-                            <div className="flex gap-4 pb-4">
-                                {monthlyRevenue.map((item, idx) => (
-                                    <div key={idx} className="flex-shrink-0 flex flex-col items-center">
-                                        <div className="flex flex-col items-center">
-                                            <div
-                                                className="w-12 bg-gradient-to-t from-blue-600 to-blue-400 rounded-t"
-                                                style={{
-                                                    height: Math.max(150, (item.revenue / (Math.max(...monthlyRevenue.map(m => m.revenue || 0)) || 1)) * 200),
-                                                }}
-                                            ></div>
-                                            <p className="text-xs font-medium mt-2 whitespace-nowrap">
-                                                {item.month && `${new Date(item.month).toLocaleDateString("en-US", { month: "short" })}`}
-                                            </p>
-                                            <p className="text-xs text-gray-600">${item.revenue || 0}</p>
-                                        </div>
+                    <div className="h-64 overflow-x-auto">
+                        <div className="flex gap-4 pb-4">
+                            {monthlyRevenue.map((item, idx) => (
+                                <div key={idx} className="flex-shrink-0 flex flex-col items-center">
+                                    <div className="flex flex-col items-center">
+                                        <div
+                                            className="w-12 bg-gradient-to-t from-blue-600 to-blue-400 rounded-t"
+                                            style={{
+                                                height: Math.max(150, (item.revenue / (Math.max(...monthlyRevenue.map(m => m.revenue || 0)) || 1)) * 200),
+                                            }}
+                                        ></div>
+                                        <p className="text-xs font-medium mt-2 whitespace-nowrap">
+                                            {item.month && `${new Date(item.month).toLocaleDateString("en-US", { month: "short" })}`}
+                                        </p>
+                                        <p className="text-xs text-gray-600">${item.revenue || 0}</p>
                                     </div>
-                                ))}
-                            </div>
+                                </div>
+                            ))}
                         </div>
-                    ) : (
-                        <div className="h-64 flex items-center justify-center bg-gray-50 rounded">
-                            <p className="text-gray-500">No revenue data available</p>
-                        </div>
-                    )}
+                    </div>
                 </div>
 
                 {/* Occupancy Rate */}
-                <div className="bg-white rounded-lg shadow p-6">
-                    <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-                        <BarChart3 size={24} className="text-green-600" />
-                        Occupancy Rate
-                    </h2>
-                    {loading ? (
-                        <div className="h-48 flex items-center justify-center">
-                            <p className="text-gray-500">Loading occupancy data...</p>
-                        </div>
-                    ) : occupancy ? (
+                {occupancy && (
+                    <div className="bg-white rounded-lg shadow p-6">
+                        <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+                            <BarChart3 size={24} className="text-green-600" />
+                            Occupancy Rate
+                        </h2>
                         <div className="flex flex-col items-center justify-center h-48">
                             <div className="relative w-32 h-32 rounded-full flex items-center justify-center bg-gray-100">
                                 <div className="text-center">
@@ -600,12 +554,8 @@ const AdminDashboard = () => {
                                 </div>
                             </div>
                         </div>
-                    ) : (
-                        <div className="h-48 flex items-center justify-center bg-gray-50 rounded">
-                            <p className="text-gray-500">No occupancy data available</p>
-                        </div>
-                    )}
-                </div>
+                    </div>
+                )}
             </div>
         </>
     );
@@ -783,12 +733,12 @@ const AdminDashboard = () => {
                                                         value={booking.bookingStatus || "pending"}
                                                         onChange={(e) => handleUpdateBookingStatus(booking._id, e.target.value)}
                                                         className={`text-sm border rounded px-3 py-1 font-medium ${booking.bookingStatus === "confirmed"
-                                                            ? "bg-green-50 border-green-300 text-green-700"
-                                                            : booking.bookingStatus === "cancelled"
-                                                                ? "bg-red-50 border-red-300 text-red-700"
-                                                                : booking.bookingStatus === "completed"
-                                                                    ? "bg-blue-50 border-blue-300 text-blue-700"
-                                                                    : "bg-yellow-50 border-yellow-300 text-yellow-700"
+                                                                ? "bg-green-50 border-green-300 text-green-700"
+                                                                : booking.bookingStatus === "cancelled"
+                                                                    ? "bg-red-50 border-red-300 text-red-700"
+                                                                    : booking.bookingStatus === "completed"
+                                                                        ? "bg-blue-50 border-blue-300 text-blue-700"
+                                                                        : "bg-yellow-50 border-yellow-300 text-yellow-700"
                                                             }`}
                                                         disabled={updatingBookingId === booking._id}
                                                     >
@@ -806,10 +756,10 @@ const AdminDashboard = () => {
                                             </td>
                                             <td className="px-4 py-4">
                                                 <span className={`text-xs px-2 py-1 rounded-full ${booking.paymentStatus === "paid"
-                                                    ? "bg-green-100 text-green-800"
-                                                    : booking.paymentStatus === "refunded"
-                                                        ? "bg-gray-100 text-gray-800"
-                                                        : "bg-orange-100 text-orange-800"
+                                                        ? "bg-green-100 text-green-800"
+                                                        : booking.paymentStatus === "refunded"
+                                                            ? "bg-gray-100 text-gray-800"
+                                                            : "bg-orange-100 text-orange-800"
                                                     }`}>
                                                     {booking.paymentStatus || "Pending"}
                                                 </span>
@@ -1077,6 +1027,14 @@ const AdminDashboard = () => {
         </div>
     );
 
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <p className="text-lg">Loading analytics...</p>
+            </div>
+        );
+    }
+
     return (
         <>
             <div className="min-h-screen bg-gray-50 py-12">
@@ -1097,8 +1055,8 @@ const AdminDashboard = () => {
                                 <button
                                     onClick={() => handleTabChange("dashboard")}
                                     className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "dashboard"
-                                        ? "border-blue-500 text-blue-600"
-                                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                                            ? "border-blue-500 text-blue-600"
+                                            : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                                         }`}
                                 >
                                     <BarChart3 className="inline mr-2" size={16} />
@@ -1107,8 +1065,8 @@ const AdminDashboard = () => {
                                 <button
                                     onClick={() => handleTabChange("rooms")}
                                     className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "rooms"
-                                        ? "border-blue-500 text-blue-600"
-                                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                                            ? "border-blue-500 text-blue-600"
+                                            : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                                         }`}
                                 >
                                     <Building2 className="inline mr-2" size={16} />
@@ -1117,8 +1075,8 @@ const AdminDashboard = () => {
                                 <button
                                     onClick={() => handleTabChange("bookings")}
                                     className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "bookings"
-                                        ? "border-blue-500 text-blue-600"
-                                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                                            ? "border-blue-500 text-blue-600"
+                                            : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                                         }`}
                                 >
                                     <Calendar className="inline mr-2" size={16} />
@@ -1127,8 +1085,8 @@ const AdminDashboard = () => {
                                 <button
                                     onClick={() => handleTabChange("reviews")}
                                     className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "reviews"
-                                        ? "border-blue-500 text-blue-600"
-                                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                                            ? "border-blue-500 text-blue-600"
+                                            : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                                         }`}
                                 >
                                     <MessageSquare className="inline mr-2" size={16} />
@@ -1137,8 +1095,8 @@ const AdminDashboard = () => {
                                 <button
                                     onClick={() => handleTabChange("offers")}
                                     className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "offers"
-                                        ? "border-blue-500 text-blue-600"
-                                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                                            ? "border-blue-500 text-blue-600"
+                                            : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                                         }`}
                                 >
                                     <Tag className="inline mr-2" size={16} />
@@ -1558,10 +1516,10 @@ const AdminDashboard = () => {
                                     <div>
                                         <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Booking Status</h3>
                                         <p className={`px-3 py-1 rounded-full text-sm font-semibold w-fit ${selectedBooking.bookingStatus === "confirmed" ? "bg-green-100 text-green-700" :
-                                            selectedBooking.bookingStatus === "pending" ? "bg-yellow-100 text-yellow-700" :
-                                                selectedBooking.bookingStatus === "cancelled" ? "bg-red-100 text-red-700" :
-                                                    selectedBooking.bookingStatus === "completed" ? "bg-blue-100 text-blue-700" :
-                                                        "bg-gray-100 text-gray-700"
+                                                selectedBooking.bookingStatus === "pending" ? "bg-yellow-100 text-yellow-700" :
+                                                    selectedBooking.bookingStatus === "cancelled" ? "bg-red-100 text-red-700" :
+                                                        selectedBooking.bookingStatus === "completed" ? "bg-blue-100 text-blue-700" :
+                                                            "bg-gray-100 text-gray-700"
                                             }`}>
                                             {selectedBooking.bookingStatus?.charAt(0).toUpperCase() + selectedBooking.bookingStatus?.slice(1)}
                                         </p>
@@ -1569,9 +1527,9 @@ const AdminDashboard = () => {
                                     <div>
                                         <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Payment Status</h3>
                                         <p className={`px-3 py-1 rounded-full text-sm font-semibold w-fit ${selectedBooking.paymentStatus === "paid" ? "bg-green-100 text-green-700" :
-                                            selectedBooking.paymentStatus === "pending" ? "bg-yellow-100 text-yellow-700" :
-                                                selectedBooking.paymentStatus === "failed" ? "bg-red-100 text-red-700" :
-                                                    "bg-gray-100 text-gray-700"
+                                                selectedBooking.paymentStatus === "pending" ? "bg-yellow-100 text-yellow-700" :
+                                                    selectedBooking.paymentStatus === "failed" ? "bg-red-100 text-red-700" :
+                                                        "bg-gray-100 text-gray-700"
                                             }`}>
                                             {selectedBooking.paymentStatus?.charAt(0).toUpperCase() + selectedBooking.paymentStatus?.slice(1)}
                                         </p>

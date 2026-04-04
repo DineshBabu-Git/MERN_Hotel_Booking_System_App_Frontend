@@ -35,19 +35,24 @@ const Dashboard = () => {
     const fetchUserData = async () => {
         try {
             const userResponse = await API.get("/auth/profile");
-            setUser(userResponse.data);
-            setSavedRooms(userResponse.data.savedRooms || []);
+            // Handle both old format and new standardized format {success, data, message}
+            const userData = userResponse.data.data || userResponse.data;
+            setUser(userData);
+            setSavedRooms(userData.savedRooms || []);
             setProfileForm({
-                name: userResponse.data.name || "",
-                phone: userResponse.data.phone || "",
-                address: userResponse.data.address || "",
-                city: userResponse.data.city || "",
-                state: userResponse.data.state || "",
-                zipCode: userResponse.data.zipCode || ""
+                name: userData.name || "",
+                phone: userData.phone || "",
+                address: userData.address || "",
+                city: userData.city || "",
+                state: userData.state || "",
+                zipCode: userData.zipCode || ""
             });
 
             const bookingsResponse = await API.get("/bookings/my-bookings");
-            const allBookings = bookingsResponse.data;
+            // Handle both old format (array) and new standardized format {success, data, message}
+            const allBookings = Array.isArray(bookingsResponse.data)
+                ? bookingsResponse.data
+                : (bookingsResponse.data.data || bookingsResponse.data.bookings || []);
             setBookings(allBookings);
 
             // Calculate stats
@@ -61,9 +66,14 @@ const Dashboard = () => {
                 upcomingBookings: upcoming,
                 completedBookings: completed,
             });
+
+            // Clear any previous errors
+            setError("");
         } catch (err) {
-            console.error(err);
-            setError("Failed to fetch user data");
+            console.error("Error fetching user data:", err);
+            setError("Failed to fetch user data. Please try refreshing the page.");
+            setBookings([]);
+            setSavedRooms([]);
         } finally {
             setLoading(false);
         }
@@ -117,241 +127,235 @@ const Dashboard = () => {
         return status === "paid" ? "text-green-600" : "text-yellow-600";
     };
 
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                    <p className="text-gray-600 text-lg">Loading your dashboard...</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="min-h-screen bg-gray-50 py-12">
             <div className="max-w-7xl mx-auto px-4">
-                {/* Header */}
-                <div className="mb-10">
-                    <h1 className="text-4xl font-bold mb-2">Welcome, {user?.name}!</h1>
-                    <p className="text-gray-600">{user?.email}</p>
-                </div>
-
-                {error && (
-                    <div className="flex gap-3 bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-                        <AlertCircle className="text-red-600 flex-shrink-0" size={20} />
-                        <p className="text-red-700">{error}</p>
-                    </div>
-                )}
-
-                {/* Stats Cards */}
-                {loading ? (
-                    <div className="grid md:grid-cols-4 gap-6 mb-10">
-                        {[1, 2, 3, 4].map((i) => (
-                            <div key={i} className="rounded-lg shadow bg-white p-6 flex items-center gap-4">
-                                <div className="animate-pulse">
-                                    <div className="w-8 h-8 bg-gray-300 rounded mb-2"></div>
-                                    <div className="w-16 h-4 bg-gray-300 rounded mb-1"></div>
-                                    <div className="w-12 h-6 bg-gray-300 rounded"></div>
-                                </div>
-                            </div>
-                        ))}
+                {!user ? (
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-8 text-center">
+                        <AlertCircle className="text-red-600 mx-auto mb-3" size={32} />
+                        <h2 className="text-xl font-bold text-red-800 mb-2">Unable to Load Dashboard</h2>
+                        <p className="text-red-700 mb-4">Please try refreshing the page or logging in again.</p>
+                        <button
+                            onClick={() => window.location.reload()}
+                            className="bg-red-600 text-white px-6 py-2 rounded hover:bg-red-700 transition"
+                        >
+                            Refresh Page
+                        </button>
                     </div>
                 ) : (
-                    <div className="grid md:grid-cols-4 gap-6 mb-10">
-                        <div className="rounded-lg shadow bg-white p-6 flex items-center gap-4 hover:shadow-lg transition">
-                            <Calendar className="text-blue-600" size={32} />
-                            <div>
-                                <p className="text-gray-500 text-sm">Total Bookings</p>
-                                <h3 className="text-2xl font-bold">{stats.totalBookings}</h3>
+                    <>
+                        {/* Header */}
+                        <div className="mb-10">
+                            <h1 className="text-4xl font-bold mb-2">Welcome, {user?.name || "User"}!</h1>
+                            <p className="text-gray-600">{user?.email || "No email"}</p>
+                        </div>
+
+                        {error && (
+                            <div className="flex gap-3 bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                                <AlertCircle className="text-red-600 flex-shrink-0" size={20} />
+                                <p className="text-red-700">{error}</p>
+                            </div>
+                        )}
+
+                        {/* Stats Cards */}
+                        <div className="grid md:grid-cols-4 gap-6 mb-10">
+                            <div className="rounded-lg shadow bg-white p-6 flex items-center gap-4 hover:shadow-lg transition">
+                                <Calendar className="text-blue-600" size={32} />
+                                <div>
+                                    <p className="text-gray-500 text-sm">Total Bookings</p>
+                                    <h3 className="text-2xl font-bold">{stats.totalBookings}</h3>
+                                </div>
+                            </div>
+
+                            <div className="rounded-lg shadow bg-white p-6 flex items-center gap-4 hover:shadow-lg transition">
+                                <DollarSign className="text-green-600" size={32} />
+                                <div>
+                                    <p className="text-gray-500 text-sm">Total Spent</p>
+                                    <h3 className="text-2xl font-bold">${stats.totalSpent}</h3>
+                                </div>
+                            </div>
+
+                            <div className="rounded-lg shadow bg-white p-6 flex items-center gap-4 hover:shadow-lg transition">
+                                <Clock className="text-yellow-600" size={32} />
+                                <div>
+                                    <p className="text-gray-500 text-sm">Upcoming</p>
+                                    <h3 className="text-2xl font-bold">{stats.upcomingBookings}</h3>
+                                </div>
+                            </div>
+
+                            <div className="rounded-lg shadow bg-white p-6 flex items-center gap-4 hover:shadow-lg transition">
+                                <CheckCircle className="text-purple-600" size={32} />
+                                <div>
+                                    <p className="text-gray-500 text-sm">Completed</p>
+                                    <h3 className="text-2xl font-bold">{stats.completedBookings}</h3>
+                                </div>
                             </div>
                         </div>
 
-                        <div className="rounded-lg shadow bg-white p-6 flex items-center gap-4 hover:shadow-lg transition">
-                            <DollarSign className="text-green-600" size={32} />
-                            <div>
-                                <p className="text-gray-500 text-sm">Total Spent</p>
-                                <h3 className="text-2xl font-bold">${stats.totalSpent}</h3>
-                            </div>
+                        {/* Tabs */}
+                        <div className="flex gap-4 mb-6 border-b overflow-x-auto">
+                            <button
+                                onClick={() => setActiveTab("bookings")}
+                                className={`pb-3 font-semibold transition whitespace-nowrap ${activeTab === "bookings"
+                                    ? "text-blue-600 border-b-2 border-blue-600"
+                                    : "text-gray-600 hover:text-gray-800"
+                                    }`}
+                            >
+                                My Bookings ({bookings.length})
+                            </button>
+                            <button
+                                onClick={() => setActiveTab("saved")}
+                                className={`pb-3 font-semibold transition whitespace-nowrap ${activeTab === "saved"
+                                    ? "text-blue-600 border-b-2 border-blue-600"
+                                    : "text-gray-600 hover:text-gray-800"
+                                    }`}
+                            >
+                                Saved Rooms ({savedRooms.length})
+                            </button>
+                            <button
+                                onClick={() => setActiveTab("profile")}
+                                className={`pb-3 font-semibold transition whitespace-nowrap flex items-center gap-1 ${activeTab === "profile"
+                                    ? "text-blue-600 border-b-2 border-blue-600"
+                                    : "text-gray-600 hover:text-gray-800"
+                                    }`}
+                            >
+                                <User size={18} />
+                                Profile
+                            </button>
                         </div>
 
-                        <div className="rounded-lg shadow bg-white p-6 flex items-center gap-4 hover:shadow-lg transition">
-                            <Clock className="text-yellow-600" size={32} />
-                            <div>
-                                <p className="text-gray-500 text-sm">Upcoming</p>
-                                <h3 className="text-2xl font-bold">{stats.upcomingBookings}</h3>
-                            </div>
-                        </div>
+                        {/* Bookings Tab */}
+                        {activeTab === "bookings" && (
+                            <div className="bg-white rounded-lg shadow p-6">
+                                <h2 className="text-xl font-bold mb-6">My Bookings</h2>
 
-                        <div className="rounded-lg shadow bg-white p-6 flex items-center gap-4 hover:shadow-lg transition">
-                            <CheckCircle className="text-purple-600" size={32} />
-                            <div>
-                                <p className="text-gray-500 text-sm">Completed</p>
-                                <h3 className="text-2xl font-bold">{stats.completedBookings}</h3>
-                            </div>
-                        </div>
-                    </div>
-                )}
-
-                {/* Tabs */}
-                <div className="flex gap-4 mb-6 border-b overflow-x-auto">
-                    <button
-                        onClick={() => setActiveTab("bookings")}
-                        className={`pb-3 font-semibold transition whitespace-nowrap ${activeTab === "bookings"
-                            ? "text-blue-600 border-b-2 border-blue-600"
-                            : "text-gray-600 hover:text-gray-800"
-                            }`}
-                    >
-                        My Bookings ({bookings.length})
-                    </button>
-                    <button
-                        onClick={() => setActiveTab("saved")}
-                        className={`pb-3 font-semibold transition whitespace-nowrap ${activeTab === "saved"
-                            ? "text-blue-600 border-b-2 border-blue-600"
-                            : "text-gray-600 hover:text-gray-800"
-                            }`}
-                    >
-                        Saved Rooms ({savedRooms.length})
-                    </button>
-                    <button
-                        onClick={() => setActiveTab("profile")}
-                        className={`pb-3 font-semibold transition whitespace-nowrap flex items-center gap-1 ${activeTab === "profile"
-                            ? "text-blue-600 border-b-2 border-blue-600"
-                            : "text-gray-600 hover:text-gray-800"
-                            }`}
-                    >
-                        <User size={18} />
-                        Profile
-                    </button>
-                </div>
-
-                {/* Bookings Tab */}
-                {activeTab === "bookings" && (
-                    <div className="bg-white rounded-lg shadow p-6">
-                        <h2 className="text-xl font-bold mb-6">My Bookings</h2>
-
-                        {loading ? (
-                            <div className="text-center py-8">
-                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                                <p className="text-gray-600">Loading your bookings...</p>
-                            </div>
-                        ) : bookings.length === 0 ? (
-                            <p className="text-gray-500 text-center py-8">No bookings yet. Start exploring rooms!</p>
-                        ) : (
-                            <div className="overflow-x-auto">
-                                <table className="min-w-full">
-                                    <thead>
-                                        <tr className="border-b">
-                                            <th className="text-left py-3 px-4 font-semibold">Room</th>
-                                            <th className="text-left py-3 px-4 font-semibold">Check-In</th>
-                                            <th className="text-left py-3 px-4 font-semibold">Check-Out</th>
-                                            <th className="text-left py-3 px-4 font-semibold">Nights</th>
-                                            <th className="text-left py-3 px-4 font-semibold">Total</th>
-                                            <th className="text-left py-3 px-4 font-semibold">Status</th>
-                                            <th className="text-left py-3 px-4 font-semibold">Payment</th>
-                                            <th className="text-left py-3 px-4 font-semibold">Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {bookings.map((booking) => (
-                                            <tr key={booking._id} className="border-b hover:bg-gray-50">
-                                                <td className="py-4 px-4 font-medium">{booking.roomId?.name || "Room"}</td>
-                                                <td className="py-4 px-4">{new Date(booking.checkIn).toLocaleDateString()}</td>
-                                                <td className="py-4 px-4">{new Date(booking.checkOut).toLocaleDateString()}</td>
-                                                <td className="py-4 px-4">{booking.numberOfNights}</td>
-                                                <td className="py-4 px-4 font-bold text-blue-600">${booking.totalPrice}</td>
-                                                <td className="py-4 px-4">
-                                                    <span className={`px-3 py-1 text-sm rounded-full font-medium ${getStatusColor(booking.bookingStatus)}`}>
-                                                        {booking.bookingStatus}
-                                                    </span>
-                                                </td>
-                                                <td className={`py-4 px-4 font-medium ${getPaymentStatusColor(booking.paymentStatus)}`}>
-                                                    {booking.paymentStatus}
-                                                </td>
-                                                <td className="py-4 px-4">
-                                                    <div className="flex gap-2">
-                                                        <button
-                                                            onClick={() => navigate(`/room/${booking.roomId?._id}`)}
-                                                            className="p-2 hover:bg-blue-100 rounded transition"
-                                                            title="View Room"
-                                                        >
-                                                            <Eye size={18} className="text-blue-600" />
-                                                        </button>
-                                                        {booking.bookingStatus === "completed" && (
-                                                            <button
-                                                                onClick={() => navigate(`/reviews/${booking._id}`)}
-                                                                className="p-2 hover:bg-green-100 rounded transition"
-                                                                title="Write Review"
-                                                            >
-                                                                <MessageCircle size={18} className="text-green-600" />
-                                                            </button>
-                                                        )}
-                                                        {booking.bookingStatus !== "cancelled" && (
-                                                            <button
-                                                                onClick={() => handleCancelBooking(booking._id)}
-                                                                disabled={cancellingBookingId === booking._id}
-                                                                className={`p-2 rounded transition ${cancellingBookingId === booking._id
-                                                                        ? "bg-gray-100 cursor-not-allowed"
-                                                                        : "hover:bg-red-100"
-                                                                    }`}
-                                                                title="Cancel Booking"
-                                                            >
-                                                                {cancellingBookingId === booking._id ? (
-                                                                    <div className="animate-spin rounded-full h-4 w-4 border-2 border-red-600 border-t-transparent"></div>
-                                                                ) : (
-                                                                    <Trash2 size={18} className="text-red-600" />
+                                {bookings.length === 0 ? (
+                                    <p className="text-gray-500 text-center py-8">No bookings yet. Start exploring rooms!</p>
+                                ) : (
+                                    <div className="overflow-x-auto">
+                                        <table className="min-w-full">
+                                            <thead>
+                                                <tr className="border-b">
+                                                    <th className="text-left py-3 px-4 font-semibold">Room</th>
+                                                    <th className="text-left py-3 px-4 font-semibold">Check-In</th>
+                                                    <th className="text-left py-3 px-4 font-semibold">Check-Out</th>
+                                                    <th className="text-left py-3 px-4 font-semibold">Nights</th>
+                                                    <th className="text-left py-3 px-4 font-semibold">Total</th>
+                                                    <th className="text-left py-3 px-4 font-semibold">Status</th>
+                                                    <th className="text-left py-3 px-4 font-semibold">Payment</th>
+                                                    <th className="text-left py-3 px-4 font-semibold">Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {bookings.map((booking) => (
+                                                    <tr key={booking._id} className="border-b hover:bg-gray-50">
+                                                        <td className="py-4 px-4 font-medium">{booking.roomId?.name || "Room"}</td>
+                                                        <td className="py-4 px-4">{new Date(booking.checkIn).toLocaleDateString()}</td>
+                                                        <td className="py-4 px-4">{new Date(booking.checkOut).toLocaleDateString()}</td>
+                                                        <td className="py-4 px-4">{booking.numberOfNights}</td>
+                                                        <td className="py-4 px-4 font-bold text-blue-600">${booking.totalPrice}</td>
+                                                        <td className="py-4 px-4">
+                                                            <span className={`px-3 py-1 text-sm rounded-full font-medium ${getStatusColor(booking.bookingStatus)}`}>
+                                                                {booking.bookingStatus}
+                                                            </span>
+                                                        </td>
+                                                        <td className={`py-4 px-4 font-medium ${getPaymentStatusColor(booking.paymentStatus)}`}>
+                                                            {booking.paymentStatus}
+                                                        </td>
+                                                        <td className="py-4 px-4">
+                                                            <div className="flex gap-2">
+                                                                <button
+                                                                    onClick={() => navigate(`/room/${booking.roomId?._id}`)}
+                                                                    className="p-2 hover:bg-blue-100 rounded transition"
+                                                                    title="View Room"
+                                                                >
+                                                                    <Eye size={18} className="text-blue-600" />
+                                                                </button>
+                                                                {booking.bookingStatus === "completed" && (
+                                                                    <button
+                                                                        onClick={() => navigate(`/reviews/${booking._id}`)}
+                                                                        className="p-2 hover:bg-green-100 rounded transition"
+                                                                        title="Write Review"
+                                                                    >
+                                                                        <MessageCircle size={18} className="text-green-600" />
+                                                                    </button>
                                                                 )}
-                                                            </button>
-                                                        )}
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        )}
-                    </div>
-                )}
-
-                {/* Saved Rooms Tab */}
-                {activeTab === "saved" && (
-                    <div className="bg-white rounded-lg shadow p-6">
-                        <h2 className="text-xl font-bold mb-6">Saved Rooms</h2>
-
-                        {loading ? (
-                            <div className="text-center py-8">
-                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                                <p className="text-gray-600">Loading saved rooms...</p>
-                            </div>
-                        ) : savedRooms.length === 0 ? (
-                            <p className="text-gray-500 text-center py-8">No saved rooms yet. Add some favorites!</p>
-                        ) : (
-                            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {savedRooms.map((room) => (
-                                    <div key={room._id} className="border rounded-lg overflow-hidden hover:shadow-lg transition">
-                                        {room.images && room.images[0] && (
-                                            <img src={room.images[0]} alt={room.name} className="w-full h-48 object-cover" />
-                                        )}
-                                        <div className="p-4">
-                                            <h3 className="font-bold text-lg mb-2">{room.name}</h3>
-                                            <p className="text-gray-600 text-sm mb-2">{room.roomType}</p>
-                                            <div className="flex justify-between items-center">
-                                                <span className="text-blue-600 font-bold text-lg">${room.price}/night</span>
-                                                <button
-                                                    onClick={() => navigate(`/room/${room._id}`)}
-                                                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition text-sm"
-                                                >
-                                                    View
-                                                </button>
-                                            </div>
-                                        </div>
+                                                                {booking.bookingStatus !== "cancelled" && (
+                                                                    <button
+                                                                        onClick={() => handleCancelBooking(booking._id)}
+                                                                        disabled={cancellingBookingId === booking._id}
+                                                                        className={`p-2 rounded transition ${cancellingBookingId === booking._id
+                                                                            ? "bg-gray-100 cursor-not-allowed"
+                                                                            : "hover:bg-red-100"
+                                                                            }`}
+                                                                        title="Cancel Booking"
+                                                                    >
+                                                                        {cancellingBookingId === booking._id ? (
+                                                                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-red-600 border-t-transparent"></div>
+                                                                        ) : (
+                                                                            <Trash2 size={18} className="text-red-600" />
+                                                                        )}
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
                                     </div>
-                                ))}
+                                )}
                             </div>
                         )}
-                    </div>
-                )}
 
-                {/* Profile Tab */}
-                {activeTab === "profile" && (
-                    <div className="bg-white rounded-lg shadow p-6">
-                        {loading ? (
-                            <div className="text-center py-8">
-                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-                                <p className="text-gray-600">Loading profile...</p>
+                        {/* Saved Rooms Tab */}
+                        {activeTab === "saved" && (
+                            <div className="bg-white rounded-lg shadow p-6">
+                                <h2 className="text-xl font-bold mb-6">Saved Rooms</h2>
+
+                                {savedRooms.length === 0 ? (
+                                    <p className="text-gray-500 text-center py-8">No saved rooms yet. Add some favorites!</p>
+                                ) : (
+                                    <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                        {savedRooms.map((room) => (
+                                            <div key={room._id} className="border rounded-lg overflow-hidden hover:shadow-lg transition">
+                                                {room.images && room.images[0] && (
+                                                    <img src={room.images[0]} alt={room.name} className="w-full h-48 object-cover" />
+                                                )}
+                                                <div className="p-4">
+                                                    <h3 className="font-bold text-lg mb-2">{room.name}</h3>
+                                                    <p className="text-gray-600 text-sm mb-2">{room.roomType}</p>
+                                                    <div className="flex justify-between items-center">
+                                                        <span className="text-blue-600 font-bold text-lg">${room.price}/night</span>
+                                                        <button
+                                                            onClick={() => navigate(`/room/${room._id}`)}
+                                                            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition text-sm"
+                                                        >
+                                                            View
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
-                        ) : (
-                            <>
+                        )}
+
+                        {/* Profile Tab */}
+                        {activeTab === "profile" && (
+                            <div className="bg-white rounded-lg shadow p-6">
                                 <div className="flex justify-between items-center mb-6">
                                     <h2 className="text-xl font-bold">My Profile</h2>
                                     <button
@@ -485,9 +489,9 @@ const Dashboard = () => {
                                         </div>
                                     </div>
                                 )}
-                            </>
+                            </div>
                         )}
-                    </div>
+                    </>
                 )}
             </div>
         </div>
