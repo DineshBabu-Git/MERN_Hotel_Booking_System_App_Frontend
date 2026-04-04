@@ -481,8 +481,24 @@ const AdminDashboard = () => {
     // Render functions for different tabs
     const renderDashboardContent = () => (
         <>
+            {/* Loading State */}
+            {loading && (
+                <div className="flex flex-col items-center justify-center py-20">
+                    <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mb-4"></div>
+                    <p className="text-gray-600 text-lg">Loading dashboard analytics...</p>
+                </div>
+            )}
+
+            {/* Error State */}
+            {!loading && error && (
+                <div className="flex gap-3 bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                    <AlertCircle className="text-red-600 flex-shrink-0" size={20} />
+                    <div className="text-red-800">{error}</div>
+                </div>
+            )}
+
             {/* Top Stats Cards */}
-            {stats && (
+            {!loading && stats && (
                 <div className="grid md:grid-cols-4 gap-6 mb-10">
                     <div className="bg-white rounded-lg shadow p-6 hover:shadow-lg transition">
                         <div className="flex items-center justify-between">
@@ -533,35 +549,49 @@ const AdminDashboard = () => {
                         <TrendingUp size={24} className="text-blue-600" />
                         Monthly Revenue (Last 12 Months)
                     </h2>
-                    <div className="h-64 overflow-x-auto">
-                        <div className="flex gap-4 pb-4">
-                            {monthlyRevenue.map((item, idx) => (
-                                <div key={idx} className="flex-shrink-0 flex flex-col items-center">
-                                    <div className="flex flex-col items-center">
-                                        <div
-                                            className="w-12 bg-gradient-to-t from-blue-600 to-blue-400 rounded-t"
-                                            style={{
-                                                height: Math.max(150, (item.revenue / (Math.max(...monthlyRevenue.map(m => m.revenue || 0)) || 1)) * 200),
-                                            }}
-                                        ></div>
-                                        <p className="text-xs font-medium mt-2 whitespace-nowrap">
-                                            {item.month && `${new Date(item.month).toLocaleDateString("en-US", { month: "short" })}`}
-                                        </p>
-                                        <p className="text-xs text-gray-600">${item.revenue || 0}</p>
-                                    </div>
-                                </div>
-                            ))}
+                    {loading ? (
+                        <div className="h-64 flex items-center justify-center">
+                            <p className="text-gray-500">Loading revenue data...</p>
                         </div>
-                    </div>
+                    ) : monthlyRevenue && monthlyRevenue.length > 0 ? (
+                        <div className="h-64 overflow-x-auto">
+                            <div className="flex gap-4 pb-4">
+                                {monthlyRevenue.map((item, idx) => (
+                                    <div key={idx} className="flex-shrink-0 flex flex-col items-center">
+                                        <div className="flex flex-col items-center">
+                                            <div
+                                                className="w-12 bg-gradient-to-t from-blue-600 to-blue-400 rounded-t"
+                                                style={{
+                                                    height: Math.max(150, (item.revenue / (Math.max(...monthlyRevenue.map(m => m.revenue || 0)) || 1)) * 200),
+                                                }}
+                                            ></div>
+                                            <p className="text-xs font-medium mt-2 whitespace-nowrap">
+                                                {item.month && `${new Date(item.month).toLocaleDateString("en-US", { month: "short" })}`}
+                                            </p>
+                                            <p className="text-xs text-gray-600">${item.revenue || 0}</p>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    ) : (
+                        <div className="h-64 flex items-center justify-center bg-gray-50 rounded">
+                            <p className="text-gray-500">No revenue data available</p>
+                        </div>
+                    )}
                 </div>
 
                 {/* Occupancy Rate */}
-                {occupancy && (
-                    <div className="bg-white rounded-lg shadow p-6">
-                        <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-                            <BarChart3 size={24} className="text-green-600" />
-                            Occupancy Rate
-                        </h2>
+                <div className="bg-white rounded-lg shadow p-6">
+                    <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
+                        <BarChart3 size={24} className="text-green-600" />
+                        Occupancy Rate
+                    </h2>
+                    {loading ? (
+                        <div className="h-48 flex items-center justify-center">
+                            <p className="text-gray-500">Loading occupancy data...</p>
+                        </div>
+                    ) : occupancy ? (
                         <div className="flex flex-col items-center justify-center h-48">
                             <div className="relative w-32 h-32 rounded-full flex items-center justify-center bg-gray-100">
                                 <div className="text-center">
@@ -570,8 +600,12 @@ const AdminDashboard = () => {
                                 </div>
                             </div>
                         </div>
-                    </div>
-                )}
+                    ) : (
+                        <div className="h-48 flex items-center justify-center bg-gray-50 rounded">
+                            <p className="text-gray-500">No occupancy data available</p>
+                        </div>
+                    )}
+                </div>
             </div>
         </>
     );
