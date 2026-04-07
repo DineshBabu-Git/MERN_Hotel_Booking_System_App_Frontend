@@ -333,7 +333,7 @@ const Rooms = () => {
                                         {/* Room Image */}
                                         <div className="h-48 bg-gray-200 overflow-hidden">
                                             <img
-                                                src={room.images?.[0] || "https://mern-hotel-booking-system-self.vercel.app/images/no_image.jpg?w=400&h=300&fit=crop"}
+                                                src={room.images?.[0] || "/images/no_image.jpg?w=400&h=300&fit=crop"}
                                                 alt={room.name}
                                                 className="w-full h-full object-cover hover:scale-110 transition"
                                             />

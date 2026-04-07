@@ -102,7 +102,7 @@ const RoomDetails = () => {
 
     const images = room.images && room.images.length > 0
         ? room.images
-        : ["https://mern-hotel-booking-system-self.vercel.app/images/no_image.jpg?w=800&h=600&fit=crop"];
+        : ["/images/no_image.jpg?w=800&h=600&fit=crop"];
 
     return (
         <div className="min-h-screen bg-gray-50">
