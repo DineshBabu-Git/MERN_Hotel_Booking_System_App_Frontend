@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import API from "../services/api";
 import {
@@ -405,40 +406,20 @@ const AdminDashboard = () => {
 
     // Form handlers
     // Handle image file upload and convert to base64
-    const handleImageUpload = async (e, index) => {
+    const handleImageUpload = (e, index) => {
         const file = e.target.files[0];
-        if (!file) return;
-
-        try {
-            // Create FormData for file upload
-            const formData = new FormData();
-            formData.append("image", file);
-
-            // Upload to backend
-            const response = await API.post("/rooms/upload/image", formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data"
-                }
-            });
-
-            if (response.data.success) {
-                // Get the filename from response
-                const filename = response.data.data.filename;
-                const imagePath = response.data.data.path;
-
-                // Update preview with the image path
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
                 const newPreviews = [...imagePreviews];
-                newPreviews[index] = imagePath;
+                newPreviews[index] = reader.result;
                 setImagePreviews(newPreviews);
 
-                // Store filename in room form (not base64)
                 const newImages = [...roomForm.images];
-                newImages[index] = filename;
+                newImages[index] = reader.result;
                 setRoomForm({ ...roomForm, images: newImages });
-            }
-        } catch (err) {
-            alert("Failed to upload image: " + (err.response?.data?.message || err.message));
-            console.error("Upload error:", err);
+            };
+            reader.readAsDataURL(file);
         }
     };
 
