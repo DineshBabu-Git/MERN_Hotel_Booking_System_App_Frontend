@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import API from "../services/api";
 import { Star, MapPin, Users, Heart, AlertCircle, Calendar, MessageCircle } from "lucide-react";
+import { getImagePath } from "../utils/imageHelper";
 
 const RoomDetails = () => {
     const { id } = useParams();
@@ -32,7 +33,9 @@ const RoomDetails = () => {
     const fetchRoomDetails = async () => {
         try {
             const response = await API.get(`/rooms/${id}`);
-            setRoom(response.data);
+            // Handle both old format (direct object) and new format ({success, data})
+            const roomData = response.data.data || response.data;
+            setRoom(roomData);
         } catch (err) {
             setError("Failed to fetch room details");
             console.error(err);
@@ -44,8 +47,12 @@ const RoomDetails = () => {
     const fetchReviews = async () => {
         try {
             const response = await API.get(`/reviews/room/${id}`);
+            // Handle both array and new standardized format {success, data}
+            const reviewsData = Array.isArray(response.data)
+                ? response.data
+                : (response.data.data || []);
             // Filter to show only approved reviews to regular users
-            const approvedReviews = response.data.filter(review => review.isApproved);
+            const approvedReviews = reviewsData.filter(review => review.isApproved);
             setReviews(approvedReviews);
         } catch (err) {
             console.error("Failed to fetch reviews:", err);

@@ -114,27 +114,44 @@ const AdminDashboard = () => {
                     API.get("/admin/demographics/users"),
                 ]);
 
-            // Handle each response with fallback
+            // Handle each response with fallback - support both old and new API response formats
             if (statsRes.status === "fulfilled") {
-                setStats(statsRes.value.data);
+                // Handle both old format (direct object) and new format ({success, data, message})
+                const statsData = statsRes.value.data.data || statsRes.value.data;
+                setStats(statsData);
             }
             if (revenueRes.status === "fulfilled") {
-                setMonthlyRevenue(revenueRes.value.data || []);
+                // Handle both array and new format {success, data}
+                const revenueData = Array.isArray(revenueRes.value.data)
+                    ? revenueRes.value.data
+                    : (revenueRes.value.data.data || []);
+                setMonthlyRevenue(revenueData);
             }
             if (occupancyRes.status === "fulfilled") {
-                setOccupancy(occupancyRes.value.data);
+                const occupancyData = occupancyRes.value.data.data || occupancyRes.value.data;
+                setOccupancy(occupancyData);
             }
             if (trendsRes.status === "fulfilled") {
-                setTrends(trendsRes.value.data || []);
+                const trendsData = Array.isArray(trendsRes.value.data)
+                    ? trendsRes.value.data
+                    : (trendsRes.value.data.data || []);
+                setTrends(trendsData);
             }
             if (roomRes.status === "fulfilled") {
-                setRoomPerformance(roomRes.value.data || []);
+                const roomData = Array.isArray(roomRes.value.data)
+                    ? roomRes.value.data
+                    : (roomRes.value.data.data || []);
+                setRoomPerformance(roomData);
             }
             if (reviewRes.status === "fulfilled") {
-                setReviewAnalytics(reviewRes.value.data);
+                const reviewData = reviewRes.value.data.data || reviewRes.value.data;
+                setReviewAnalytics(reviewData);
             }
             if (userRes.status === "fulfilled") {
-                setUserDemographics(userRes.value.data || []);
+                const userData = Array.isArray(userRes.value.data)
+                    ? userRes.value.data
+                    : (userRes.value.data.data || []);
+                setUserDemographics(userData);
             }
 
             // Check if at least one call failed
@@ -156,7 +173,9 @@ const AdminDashboard = () => {
         setManagementLoading(true);
         try {
             const response = await API.get("/rooms");
-            setRooms(response.data);
+            // Handle both array and new format {success, data}
+            const roomsData = Array.isArray(response.data) ? response.data : (response.data.data || []);
+            setRooms(roomsData);
         } catch (err) {
             console.error("Failed to fetch rooms:", err);
         } finally {
@@ -169,8 +188,10 @@ const AdminDashboard = () => {
         setManagementError("");
         try {
             const response = await API.get("/bookings");
-            // Handle both array and object responses
-            const bookingsData = Array.isArray(response.data) ? response.data : response.data.bookings || [];
+            // Handle both array and new standardized format {success, data}
+            const bookingsData = Array.isArray(response.data)
+                ? response.data
+                : (response.data.data || response.data.bookings || []);
             setBookings(bookingsData);
         } catch (err) {
             console.error("Failed to fetch bookings:", err);
@@ -186,8 +207,10 @@ const AdminDashboard = () => {
         setManagementError("");
         try {
             const response = await API.get("/reviews");
-            // Handle both array and object responses
-            const reviewsData = Array.isArray(response.data) ? response.data : response.data.reviews || [];
+            // Handle both array and new standardized format {success, data}
+            const reviewsData = Array.isArray(response.data)
+                ? response.data
+                : (response.data.data || response.data.reviews || []);
             setReviews(reviewsData);
         } catch (err) {
             console.error("Failed to fetch reviews:", err);
@@ -202,7 +225,9 @@ const AdminDashboard = () => {
         setManagementLoading(true);
         try {
             const response = await API.get("/offers");
-            setOffers(response.data);
+            // Handle both array and new format {success, data}
+            const offersData = Array.isArray(response.data) ? response.data : (response.data.data || []);
+            setOffers(offersData);
         } catch (err) {
             console.error("Failed to fetch offers:", err);
         } finally {
@@ -733,12 +758,12 @@ const AdminDashboard = () => {
                                                         value={booking.bookingStatus || "pending"}
                                                         onChange={(e) => handleUpdateBookingStatus(booking._id, e.target.value)}
                                                         className={`text-sm border rounded px-3 py-1 font-medium ${booking.bookingStatus === "confirmed"
-                                                                ? "bg-green-50 border-green-300 text-green-700"
-                                                                : booking.bookingStatus === "cancelled"
-                                                                    ? "bg-red-50 border-red-300 text-red-700"
-                                                                    : booking.bookingStatus === "completed"
-                                                                        ? "bg-blue-50 border-blue-300 text-blue-700"
-                                                                        : "bg-yellow-50 border-yellow-300 text-yellow-700"
+                                                            ? "bg-green-50 border-green-300 text-green-700"
+                                                            : booking.bookingStatus === "cancelled"
+                                                                ? "bg-red-50 border-red-300 text-red-700"
+                                                                : booking.bookingStatus === "completed"
+                                                                    ? "bg-blue-50 border-blue-300 text-blue-700"
+                                                                    : "bg-yellow-50 border-yellow-300 text-yellow-700"
                                                             }`}
                                                         disabled={updatingBookingId === booking._id}
                                                     >
@@ -756,10 +781,10 @@ const AdminDashboard = () => {
                                             </td>
                                             <td className="px-4 py-4">
                                                 <span className={`text-xs px-2 py-1 rounded-full ${booking.paymentStatus === "paid"
-                                                        ? "bg-green-100 text-green-800"
-                                                        : booking.paymentStatus === "refunded"
-                                                            ? "bg-gray-100 text-gray-800"
-                                                            : "bg-orange-100 text-orange-800"
+                                                    ? "bg-green-100 text-green-800"
+                                                    : booking.paymentStatus === "refunded"
+                                                        ? "bg-gray-100 text-gray-800"
+                                                        : "bg-orange-100 text-orange-800"
                                                     }`}>
                                                     {booking.paymentStatus || "Pending"}
                                                 </span>
@@ -1055,8 +1080,8 @@ const AdminDashboard = () => {
                                 <button
                                     onClick={() => handleTabChange("dashboard")}
                                     className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "dashboard"
-                                            ? "border-blue-500 text-blue-600"
-                                            : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                                        ? "border-blue-500 text-blue-600"
+                                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                                         }`}
                                 >
                                     <BarChart3 className="inline mr-2" size={16} />
@@ -1065,8 +1090,8 @@ const AdminDashboard = () => {
                                 <button
                                     onClick={() => handleTabChange("rooms")}
                                     className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "rooms"
-                                            ? "border-blue-500 text-blue-600"
-                                            : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                                        ? "border-blue-500 text-blue-600"
+                                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                                         }`}
                                 >
                                     <Building2 className="inline mr-2" size={16} />
@@ -1075,8 +1100,8 @@ const AdminDashboard = () => {
                                 <button
                                     onClick={() => handleTabChange("bookings")}
                                     className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "bookings"
-                                            ? "border-blue-500 text-blue-600"
-                                            : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                                        ? "border-blue-500 text-blue-600"
+                                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                                         }`}
                                 >
                                     <Calendar className="inline mr-2" size={16} />
@@ -1085,8 +1110,8 @@ const AdminDashboard = () => {
                                 <button
                                     onClick={() => handleTabChange("reviews")}
                                     className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "reviews"
-                                            ? "border-blue-500 text-blue-600"
-                                            : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                                        ? "border-blue-500 text-blue-600"
+                                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                                         }`}
                                 >
                                     <MessageSquare className="inline mr-2" size={16} />
@@ -1095,8 +1120,8 @@ const AdminDashboard = () => {
                                 <button
                                     onClick={() => handleTabChange("offers")}
                                     className={`py-4 px-1 border-b-2 font-medium text-sm ${activeTab === "offers"
-                                            ? "border-blue-500 text-blue-600"
-                                            : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                                        ? "border-blue-500 text-blue-600"
+                                        : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
                                         }`}
                                 >
                                     <Tag className="inline mr-2" size={16} />
@@ -1516,10 +1541,10 @@ const AdminDashboard = () => {
                                     <div>
                                         <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Booking Status</h3>
                                         <p className={`px-3 py-1 rounded-full text-sm font-semibold w-fit ${selectedBooking.bookingStatus === "confirmed" ? "bg-green-100 text-green-700" :
-                                                selectedBooking.bookingStatus === "pending" ? "bg-yellow-100 text-yellow-700" :
-                                                    selectedBooking.bookingStatus === "cancelled" ? "bg-red-100 text-red-700" :
-                                                        selectedBooking.bookingStatus === "completed" ? "bg-blue-100 text-blue-700" :
-                                                            "bg-gray-100 text-gray-700"
+                                            selectedBooking.bookingStatus === "pending" ? "bg-yellow-100 text-yellow-700" :
+                                                selectedBooking.bookingStatus === "cancelled" ? "bg-red-100 text-red-700" :
+                                                    selectedBooking.bookingStatus === "completed" ? "bg-blue-100 text-blue-700" :
+                                                        "bg-gray-100 text-gray-700"
                                             }`}>
                                             {selectedBooking.bookingStatus?.charAt(0).toUpperCase() + selectedBooking.bookingStatus?.slice(1)}
                                         </p>
@@ -1527,9 +1552,9 @@ const AdminDashboard = () => {
                                     <div>
                                         <h3 className="text-sm font-medium text-gray-500 uppercase mb-2">Payment Status</h3>
                                         <p className={`px-3 py-1 rounded-full text-sm font-semibold w-fit ${selectedBooking.paymentStatus === "paid" ? "bg-green-100 text-green-700" :
-                                                selectedBooking.paymentStatus === "pending" ? "bg-yellow-100 text-yellow-700" :
-                                                    selectedBooking.paymentStatus === "failed" ? "bg-red-100 text-red-700" :
-                                                        "bg-gray-100 text-gray-700"
+                                            selectedBooking.paymentStatus === "pending" ? "bg-yellow-100 text-yellow-700" :
+                                                selectedBooking.paymentStatus === "failed" ? "bg-red-100 text-red-700" :
+                                                    "bg-gray-100 text-gray-700"
                                             }`}>
                                             {selectedBooking.paymentStatus?.charAt(0).toUpperCase() + selectedBooking.paymentStatus?.slice(1)}
                                         </p>
