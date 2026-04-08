@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import API from "../services/api";
 import { Star, MapPin, Users, Wifi, Coffee, Tv, AlertCircle, Search, Filter } from "lucide-react";
+import { getImagePath } from "../utils/imageHelper";
 
 const Rooms = () => {
     const [rooms, setRooms] = useState([]);
@@ -333,7 +334,7 @@ const Rooms = () => {
                                         {/* Room Image */}
                                         <div className="h-48 bg-gray-200 overflow-hidden">
                                             <img
-                                                src={room.images?.[0] || "/images/no_image.jpg?w=400&h=300&fit=crop"}
+                                                src={getImagePath(room.images?.[0])}
                                                 alt={room.name}
                                                 className="w-full h-full object-cover hover:scale-110 transition"
                                             />

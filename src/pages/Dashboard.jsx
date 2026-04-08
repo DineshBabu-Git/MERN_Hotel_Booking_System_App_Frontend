@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../services/api";
+import { getImagePath } from "../utils/imageHelper";
 import { Calendar, DollarSign, Clock, CheckCircle, AlertCircle, Eye, Trash2, Heart, Bell, User, Edit2, Save, MessageCircle } from "lucide-react";
 
 const Dashboard = () => {
@@ -331,7 +332,7 @@ const Dashboard = () => {
                                         {savedRooms.map((room) => (
                                             <div key={room._id} className="border rounded-lg overflow-hidden hover:shadow-lg transition">
                                                 {room.images && room.images[0] && (
-                                                    <img src={room.images[0]} alt={room.name} className="w-full h-48 object-cover" />
+                                                    <img src={getImagePath(room.images[0])} alt={room.name} className="w-full h-48 object-cover" />
                                                 )}
                                                 <div className="p-4">
                                                     <h3 className="font-bold text-lg mb-2">{room.name}</h3>

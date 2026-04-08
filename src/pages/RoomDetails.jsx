@@ -102,7 +102,7 @@ const RoomDetails = () => {
 
     const images = room.images && room.images.length > 0
         ? room.images
-        : ["/images/no_image.jpg?w=800&h=600&fit=crop"];
+        : [null];
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -111,7 +111,7 @@ const RoomDetails = () => {
                 <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-8">
                     <div className="relative h-96 bg-gray-300">
                         <img
-                            src={images[imageIndex]}
+                            src={getImagePath(images[imageIndex])}
                             alt={room.name}
                             className="w-full h-full object-cover"
                         />
@@ -270,7 +270,7 @@ const RoomDetails = () => {
                                                     ))}
                                                 </div>
                                             </div>
-                                            
+
                                             <p className="text-gray-700 mb-3">{review.comment}</p>
 
                                             {/* Detailed Ratings */}

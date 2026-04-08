@@ -1,12 +1,13 @@
 
 import { BedDouble, Users, Wifi, Bath } from "lucide-react";
 import { Link } from "react-router-dom";
+import { getImagePath } from "../utils/imageHelper";
 
 function RoomCard({ room }) {
     return (
         <div className="bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition">
             <img
-                src={room.images[0]}
+                src={getImagePath(room.images?.[0])}
                 alt={room.name}
                 className="h-56 w-full object-cover"
             />
