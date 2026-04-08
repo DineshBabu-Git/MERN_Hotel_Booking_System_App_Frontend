@@ -405,20 +405,40 @@ const AdminDashboard = () => {
 
     // Form handlers
     // Handle image file upload and convert to base64
-    const handleImageUpload = (e, index) => {
+    const handleImageUpload = async (e, index) => {
         const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
+        if (!file) return;
+
+        try {
+            // Create FormData for file upload
+            const formData = new FormData();
+            formData.append("image", file);
+
+            // Upload to backend
+            const response = await API.post("/rooms/upload/image", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data"
+                }
+            });
+
+            if (response.data.success) {
+                // Get the filename from response
+                const filename = response.data.data.filename;
+                const imagePath = response.data.data.path;
+
+                // Update preview with the image path
                 const newPreviews = [...imagePreviews];
-                newPreviews[index] = reader.result;
+                newPreviews[index] = imagePath;
                 setImagePreviews(newPreviews);
 
+                // Store filename in room form (not base64)
                 const newImages = [...roomForm.images];
-                newImages[index] = reader.result;
+                newImages[index] = filename;
                 setRoomForm({ ...roomForm, images: newImages });
-            };
-            reader.readAsDataURL(file);
+            }
+        } catch (err) {
+            alert("Failed to upload image: " + (err.response?.data?.message || err.message));
+            console.error("Upload error:", err);
         }
     };
 
