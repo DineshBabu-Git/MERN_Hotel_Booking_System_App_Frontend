@@ -168,10 +168,10 @@ const CheckoutForm = ({ bookingData }) => {
 
             <div className="bg-gray-50 p-4 rounded-lg mb-4">
                 <p className="text-sm text-gray-600 mb-2">Amount to Pay</p>
-                <p className="text-2xl font-bold text-gray-900">₹{bookingData.totalPrice.toFixed(2)}</p>
+                <p className="text-2xl font-bold text-gray-900">${bookingData.totalPrice.toFixed(2)}</p>
                 {bookingData.discountAmount > 0 && (
                     <p className="text-xs text-green-600 mt-2">
-                        Discount Applied: ₹{bookingData.discountAmount.toFixed(2)}
+                        Discount Applied: ${bookingData.discountAmount.toFixed(2)}
                     </p>
                 )}
             </div>
@@ -181,7 +181,7 @@ const CheckoutForm = ({ bookingData }) => {
                 disabled={loading}
                 className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 text-white py-3 rounded-lg font-semibold transition"
             >
-                {loading ? "Processing..." : `Pay ₹${bookingData.totalPrice.toFixed(2)}`}
+                {loading ? "Processing..." : `Pay $${bookingData.totalPrice.toFixed(2)}`}
             </button>
 
             <p className="mt-4 text-xs text-gray-500 text-center">
