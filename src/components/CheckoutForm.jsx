@@ -29,31 +29,48 @@ const CheckoutForm = ({ bookingData }) => {
         const user = JSON.parse(localStorage.getItem("user") || "{}");
 
         try {
+            // Validate booking data
+            if (!bookingData.bookingId) {
+                throw new Error("Booking ID is missing. Please try again.");
+            }
+            if (!bookingData.totalPrice || bookingData.totalPrice <= 0) {
+                throw new Error("Invalid payment amount. Please check your booking details.");
+            }
+
             // 1️⃣ Create Razorpay Order
             const { data: orderData } = await axios.post(
                 "https://mern-hotel-booking-system-backend.onrender.com/api/payments/create-order",
                 {
-                    amount: bookingData.totalPrice,
+                    amount: parseFloat(bookingData.totalPrice),
                     bookingId: bookingData.bookingId,
-                    currency: "USD"
+                    currency: "INR"
                 },
                 {
                     headers: { Authorization: `Bearer ${token}` }
                 }
             );
 
-            const orderId = orderData.orderId;
+            if (!orderData || !orderData.data || !orderData.data.orderId) {
+                throw new Error(orderData?.message || "Failed to create payment order");
+            }
+
+            const orderId = orderData.data.orderId;
 
             // 2️⃣ Open Razorpay Checkout
             const options = {
                 key: import.meta.env.VITE_RAZORPAY_KEY_ID, // From .env
-                amount: orderData.amount, // In Cents
-                currency: orderData.currency,
+                amount: orderData.data.amount, // In Cents
+                currency: orderData.data.currency || "$",
                 name: "Hotel Booking System",
                 description: `Booking for ${bookingData.numberOfNights} nights`,
                 order_id: orderId,
                 handler: async (response) => {
                     try {
+                        // Validate response from Razorpay
+                        if (!response.razorpay_payment_id || !response.razorpay_order_id || !response.razorpay_signature) {
+                            throw new Error("Missing payment response data from Razorpay");
+                        }
+
                         // 3️⃣ Verify Payment on Backend
                         const verifyResponse = await axios.post(
                             "https://mern-hotel-booking-system-backend.onrender.com/api/payments/verify",
@@ -70,14 +87,17 @@ const CheckoutForm = ({ bookingData }) => {
 
                         setMessage("Payment Successful! Booking Confirmed. Check your Email for Details.🎉");
                         setMessageType("success");
+                        setLoading(false);
 
                         // Redirect after success
                         setTimeout(() => {
                             window.location.href = "/dashboard";
                         }, 2000);
                     } catch (err) {
-                        setMessage(err.response?.data?.message || "Payment verification failed");
+                        const errorMsg = err.response?.data?.message || err.message || "Payment verification failed";
+                        setMessage(errorMsg);
                         setMessageType("error");
+                        setLoading(false);
                     }
                 },
                 prefill: {
@@ -99,14 +119,16 @@ const CheckoutForm = ({ bookingData }) => {
 
             const razorpay = new window.Razorpay(options);
             razorpay.on("payment.failed", (response) => {
-                setMessage(`Payment failed: ${response.error.description}`);
+                const errorMsg = response.error?.description || "Payment failed";
+                setMessage(`Payment failed: ${errorMsg}`);
                 setMessageType("error");
                 setLoading(false);
             });
 
             razorpay.open();
         } catch (err) {
-            setMessage(err.response?.data?.message || "Failed to create payment order");
+            const errorMsg = err.response?.data?.message || err.message || "Failed to create payment order";
+            setMessage(errorMsg);
             setMessageType("error");
             setLoading(false);
         }
