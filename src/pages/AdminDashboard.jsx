@@ -1019,7 +1019,7 @@ const AdminDashboard = () => {
                                         {review.isApproved ? (
                                             <span className="text-green-600 font-medium">✓ Approved • Visible to guests</span>
                                         ) : (
-                                            <span className="text-yellow-600 font-medium">⏳ Pending • Not visible yet</span>
+                                            <span className="text-yellow-600 font-medium">⏳ Pending • Not visible to guests</span>
                                         )}
                                     </span>
                                 </div>

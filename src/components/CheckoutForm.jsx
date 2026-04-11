@@ -43,7 +43,7 @@ const CheckoutForm = ({ bookingData }) => {
                 {
                     amount: parseFloat(bookingData.totalPrice),
                     bookingId: bookingData.bookingId,
-                    currency: "USD"
+                    currency: "INR"
                 },
                 {
                     headers: { Authorization: `Bearer ${token}` }
@@ -60,7 +60,7 @@ const CheckoutForm = ({ bookingData }) => {
             const options = {
                 key: import.meta.env.VITE_RAZORPAY_KEY_ID, // From .env
                 amount: orderData.data.amount, // In Cents
-                currency: orderData.data.currency || "USD",
+                currency: orderData.data.currency || "INR",
                 name: "Hotel Booking System",
                 description: `Booking for ${bookingData.numberOfNights} nights`,
                 order_id: orderId,
