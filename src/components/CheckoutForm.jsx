@@ -43,7 +43,7 @@ const CheckoutForm = ({ bookingData }) => {
                 {
                     amount: parseFloat(bookingData.totalPrice),
                     bookingId: bookingData.bookingId,
-                    currency: "INR"
+                    currency: "USD"
                 },
                 {
                     headers: { Authorization: `Bearer ${token}` }
@@ -60,7 +60,7 @@ const CheckoutForm = ({ bookingData }) => {
             const options = {
                 key: import.meta.env.VITE_RAZORPAY_KEY_ID, // From .env
                 amount: orderData.data.amount, // In Cents
-                currency: orderData.data.currency || "INR",
+                currency: orderData.data.currency || "USD",
                 name: "Hotel Booking System",
                 description: `Booking for ${bookingData.numberOfNights} nights`,
                 order_id: orderId,
@@ -114,10 +114,26 @@ const CheckoutForm = ({ bookingData }) => {
                         setMessageType("error");
                         setLoading(false);
                     }
+                },
+                method: {
+                    card: true,
+                    debit_card: true,
+                    credit_card: true,
+                    upi: true,
+                    netbanking: true,
+                    wallet: true,
+                    emandate: false
+                },
+                international: true,
+                recurring: false,
+                notes: {
+                    bookingId: bookingData.bookingId
                 }
             };
 
             const razorpay = new window.Razorpay(options);
+
+            // Only register payment failed handler - handler catches successful payments
             razorpay.on("payment.failed", (response) => {
                 const errorMsg = response.error?.description || "Payment failed";
                 setMessage(`Payment failed: ${errorMsg}`);
