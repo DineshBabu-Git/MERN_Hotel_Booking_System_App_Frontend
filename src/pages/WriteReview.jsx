@@ -46,7 +46,7 @@ const WriteReview = () => {
             // Fetch booking details first
             try {
                 const bookingResponse = await API.get(`/bookings/${id}`);
-                const bookingData = bookingResponse.data;
+                const bookingData = bookingResponse.data.booking;
                 setBooking(bookingData);
 
                 // Get roomId from booking and fetch room details
