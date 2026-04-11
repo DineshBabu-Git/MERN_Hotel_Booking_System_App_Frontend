@@ -789,7 +789,7 @@ const AdminDashboard = () => {
                             <tbody className="divide-y divide-gray-200">
                                 {filteredBookings.map((booking) => {
                                     const roomName = booking.roomId?.name ? `${booking.roomId.name}` : `Room ${booking.roomId?._id || booking.roomId}`;
-                                    const totalPrice = booking.totalPrice ? `$${booking.totalPrice.toFixed(2)}` : "N/A";
+                                    const totalPrice = booking.totalPrice ? `₹${booking.totalPrice.toFixed(2)}` : "N/A";
                                     return (
                                         <tr key={booking._id} className="hover:bg-gray-50">
                                             <td className="px-4 py-4">
@@ -1075,7 +1075,7 @@ const AdminDashboard = () => {
                                             <code className="bg-gray-100 px-2 py-1 rounded text-sm">{offer.code}</code>
                                             <span className={`px-2 py-1 text-xs rounded ${offer.discountType === "percentage" ? "bg-blue-100 text-blue-800" : "bg-green-100 text-green-800"
                                                 }`}>
-                                                {offer.discountType === "percentage" ? `${offer.discount}%` : `$${offer.discount}`}
+                                                {offer.discountType === "percentage" ? `${offer.discount}%` : `₹${offer.discount}`}
                                             </span>
                                         </div>
                                         <p className="text-xs text-gray-500">

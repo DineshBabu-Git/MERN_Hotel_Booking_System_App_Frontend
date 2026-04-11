@@ -34,7 +34,7 @@ const Offers = () => {
         if (offer.discountType === "percentage") {
             return `${offer.discount}% off`;
         } else {
-            return `$${offer.discount} off`;
+            return `₹${offer.discount} off`;
         }
     };
 
