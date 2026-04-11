@@ -183,7 +183,7 @@ const Dashboard = () => {
                                 <DollarSign className="text-green-600" size={32} />
                                 <div>
                                     <p className="text-gray-500 text-sm">Total Spent</p>
-                                    <h3 className="text-2xl font-bold">${stats.totalSpent}</h3>
+                                    <h3 className="text-2xl font-bold">${stats.totalSpent.toFixed(2)}</h3>
                                 </div>
                             </div>
 
