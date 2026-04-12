@@ -26,15 +26,13 @@ Password: admin123
 #### Network    |   Card Number   |   Use a random CVV and Any future date
 
 - Visa        |  4100 2800 0000 1007	
-- Mastercard  |  5500 6700 0000 1002	
-- RuPay       |  6527 6589 0000 1005
-- Diners      |  3608 280009 1007	
-- Amex        |  3402 560004 01007	
+- RuPay       |  6527 6589 0000 1005	
+- Mastercard  |  5267 3181 8797 5449 (Sometimes fails, try multiple times due to Razorpay Test Environment instability)	
 
 #### Example :
 - **Card Number:** 6527 6589 0000 1005
 - **Expiry:** Any future date (e.g., 12/30)
-- **CVV:** Any 3 digits (e.g., 123)
+- **CVV:** Any 3 digits (e.g., 321)
 - **OTP:** 123456
 
 ---
