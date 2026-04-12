@@ -34,7 +34,7 @@ const Offers = () => {
         if (offer.discountType === "percentage") {
             return `${offer.discount}% off`;
         } else {
-            return `₹${offer.discount} off`;
+            return `$${offer.discount} off`;
         }
     };
 
@@ -159,8 +159,8 @@ const Offers = () => {
                                                         setTimeout(() => setCopiedCode(null), 2000);
                                                     }}
                                                     className={`text-sm underline font-semibold transition ${copiedCode === offer._id
-                                                            ? "text-green-600 hover:text-green-800"
-                                                            : "text-blue-600 hover:text-blue-800"
+                                                        ? "text-green-600 hover:text-green-800"
+                                                        : "text-blue-600 hover:text-blue-800"
                                                         }`}
                                                 >
                                                     {copiedCode === offer._id ? "✓ Copied" : "Copy"}

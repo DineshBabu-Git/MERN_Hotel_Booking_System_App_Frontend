@@ -197,7 +197,7 @@ const CheckoutForm = ({ bookingData }) => {
                 disabled={loading}
                 className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 text-white py-3 rounded-lg font-semibold transition"
             >
-                {loading ? "Processing..." : `Pay ₹${bookingData.totalPrice.toFixed(2)}`}
+                {loading ? "Processing..." : `Pay $${bookingData.totalPrice.toFixed(2)}`}
             </button>
 
             <p className="mt-4 text-xs text-gray-500 text-center">
