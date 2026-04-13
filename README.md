@@ -161,83 +161,70 @@ Access at: **http://localhost:5173**
 
 ## 🔌 API Integration
 
-Frontend communicates with backend API at `VITE_API_BASE_URL` (Base: `http://localhost:5000/api`):
+Frontend communicates with backend API at `VITE_API_BASE_URL`:
 
 ### Authentication
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| POST | `/auth/register` | Register new account | ❌ |
-| POST | `/auth/login` | Login user | ❌ |
-| GET | `/auth/profile` | Get user profile | ✅ |
-| PUT | `/auth/profile` | Update profile | ✅ |
-| POST | `/auth/save-room` | Save room to favorites | ✅ |
-| POST | `/auth/remove-saved-room` | Remove saved room | ✅ |
+```
+POST   /auth/register         - Create new account
+POST   /auth/login            - Login user
+GET    /auth/profile          - Get user profile
+PUT    /auth/profile          - Update profile
+POST   /auth/save-room        - Save room to favorites
+POST   /auth/remove-saved-room - Remove saved room
+```
 
-### Rooms
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| GET | `/rooms` | Get all rooms | ❌ |
-| GET | `/rooms/:id` | Get room details | ❌ |
-| GET | `/rooms/mock` | Get mock rooms | ❌ |
-| GET | `/rooms/availability` | Check room availability | ❌ |
-| GET | `/rooms/:id/reviews` | Get reviews for a room | ❌ |
-| POST | `/rooms` | Create room | ✅ Admin |
-| POST | `/rooms/upload` | Upload room image | ✅ Admin |
-| PUT | `/rooms/:id` | Update room | ✅ Admin |
-| DELETE | `/rooms/:id` | Delete room | ✅ Admin |
-
-### Bookings
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| GET | `/bookings/my-bookings` | Get user bookings | ✅ |
-| GET | `/bookings/:id` | Get booking details | ✅ |
-| POST | `/bookings` | Create booking | ✅ |
-| PUT | `/bookings/:id/confirm` | Confirm booking | ✅ |
-| PUT | `/bookings/:id/cancel` | Cancel booking | ✅ |
-| GET | `/bookings` | Get all bookings | ✅ Admin |
-| PUT | `/bookings/:id/status` | Update booking status | ✅ Admin |
+### Rooms & Bookings
+```
+GET    /rooms                 - Get all rooms
+GET    /rooms/:id             - Get room details
+GET    /rooms/mock            - Get mock rooms
+GET    /rooms/availability    - Check availability
+GET    /rooms/:id/reviews     - Get room reviews
+POST   /bookings              - Create booking
+GET    /bookings/my-bookings  - Get user bookings
+GET    /bookings/:id          - Get booking details
+PUT    /bookings/:id/confirm  - Confirm booking
+PUT    /bookings/:id/cancel   - Cancel booking
+PUT    /bookings/:id/status   - Update status (Admin)
+```
 
 ### Payments
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| POST | `/payments/create-order` | Create payment order | ✅ |
-| POST | `/payments/verify` | Verify payment | ✅ |
-| POST | `/payments/refund` | Refund payment | ✅ |
-| GET | `/payments/:paymentId/status` | Check payment status | ✅ |
-| POST | `/payments/webhook` | Razorpay webhook | ❌ |
+```
+POST   /payments/create-order    - Create payment order
+POST   /payments/verify          - Verify payment
+POST   /payments/refund          - Refund payment
+GET    /payments/:paymentId/status - Check payment status
+POST   /payments/webhook         - Razorpay webhook
+```
 
 ### Reviews
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| GET | `/reviews` | Get all reviews | ✅ Admin |
-| GET | `/reviews/my-reviews` | Get user's reviews | ✅ |
-| GET | `/reviews/room/:roomId` | Get room reviews | ❌ |
-| POST | `/reviews` | Submit review | ✅ |
-| PUT | `/reviews/:id` | Update review | ✅ |
-| PUT | `/reviews/:id/approve` | Approve review | ✅ Admin |
-| PUT | `/reviews/:id/response` | Add admin response | ✅ Admin |
-| DELETE | `/reviews/:id` | Delete review | ✅ |
+```
+GET    /reviews                - Get all reviews (Admin)
+GET    /reviews/my-reviews     - Get user's reviews
+GET    /reviews/room/:roomId   - Get room reviews
+POST   /reviews                - Submit review
+PUT    /reviews/:id            - Update review
+PUT    /reviews/:id/approve    - Approve review (Admin)
+PUT    /reviews/:id/response   - Add admin response (Admin)
+DELETE /reviews/:id            - Delete review
+```
 
 ### Offers
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| GET | `/offers/active` | Get active offers | ❌ |
-| POST | `/offers/validate` | Validate offer code | ❌ |
-| POST | `/offers` | Create offer | ✅ Admin |
-| GET | `/offers` | Get all offers | ✅ Admin |
-| PUT | `/offers/:id` | Update offer | ✅ Admin |
-| DELETE | `/offers/:id` | Delete offer | ✅ Admin |
+```
+GET    /offers/active         - Get active offers
+POST   /offers/validate       - Check discount code
+```
 
 ### Admin Analytics
-| Method | Endpoint | Description | Auth |
-|--------|----------|-------------|------|
-| GET | `/admin/dashboard` | Dashboard summary | ✅ Admin |
-| GET | `/admin/revenue/monthly` | Monthly revenue | ✅ Admin |
-| GET | `/admin/occupancy` | Occupancy rates | ✅ Admin |
-| GET | `/admin/trends/booking` | Booking trends | ✅ Admin |
-| GET | `/admin/performance/rooms` | Room performance | ✅ Admin |
-| GET | `/admin/analytics/reviews` | Review analytics | ✅ Admin |
-| GET | `/admin/demographics/users` | User demographics | ✅ Admin |
+```
+GET    /admin/dashboard              - Dashboard summary
+GET    /admin/revenue/monthly        - Monthly revenue
+GET    /admin/occupancy              - Occupancy rates
+GET    /admin/trends/booking         - Booking trends
+GET    /admin/performance/rooms      - Room performance
+GET    /admin/analytics/reviews      - Review analytics
+GET    /admin/demographics/users     - User demographics
+```
 
 ---
 
